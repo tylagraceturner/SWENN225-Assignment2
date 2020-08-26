@@ -1,6 +1,11 @@
+import javafx.scene.control.RadioButton;
+import jdk.nashorn.internal.parser.Token;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -18,12 +23,16 @@ public class Game {
     //MEMBER VARIABLES
     private final int boardWidth = 24;
     private Board board = new Board();
-    private int numberOfPlayers;
+    private int numberOfPlayers = 0;
+    private int n = 0;//change later
     private ArrayList<Player> players = new ArrayList<>();
     private ArrayList<Card> deck = new ArrayList<>();
     private ArrayList<Room> rooms = new ArrayList<>();
     private ArrayList<Card> tempDeck = new ArrayList<>();
     private ArrayList<Suggestion> accusations = new ArrayList<>();
+
+    private ArrayList<Token> weapons = new ArrayList<>();
+    private HashMap<String, String> names = new HashMap<>();
     private Suggestion murder;
 
     static JFrame f;
@@ -572,9 +581,203 @@ public class Game {
     }
 
     //NEXT STEP TO COMPLETE
-    public void initialisePlayerTokens() {
+    //public void initialisePlayerTokens() {
+    private String[] characterCards = {null,
+                                        "1: Miss Scarlett",
+                                        "2: Professor Plum",
+                                        "3: Mrs Peacock",
+                                        "4: Reverend Green",
+                                        "5: Colonel Mustard",
+                                        "6: Mrs White"};
+    //Arraylist for the players selected
+    ArrayList<Integer> numPlayer = new ArrayList<>();
+    String characterName = "";
 
+    private void initialisePlayerTokens(){
+        if(numberOfPlayers > 0){
+            if(characterName == "") characterName = players.get(numberOfPlayers-1).getPlayerName();
+            names.put(players.get(numberOfPlayers-1).getPlayerName(), characterName);
+            characterName = "";
+        }
+        JLabel charactNmLab = new JLabel("              Player " + numberOfPlayers++ + " Enter Your Name:             ");
+        f.add(charactNmLab);
+        JTextField tf = new JTextField();
+        tf.setPreferredSize(new Dimension(200,200));//unsure
+        tf.setBounds(100,100,200,100);//unsure
+        tf.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                characterName = ((JTextField) e.getSource()).getText() + String.valueOf(e.getKeyChar());
+            }
+        });
 
+        //creating the buttons for the characters
+        f.add(tf);
+        JLabel characterPick = new JLabel("             Player " + numberOfPlayers++ + " Pick A Character :             ");
+        JRadioButton scarlett = new JRadioButton("Miss Scarlett");
+        JRadioButton plum = new JRadioButton("Professor Plum");
+        JRadioButton peacock = new JRadioButton("Mrs Peacock");
+        JRadioButton green = new JRadioButton("Reverend Green");
+        JRadioButton mustard = new JRadioButton("Colonel Mustard");
+        JRadioButton white = new JRadioButton("Mrs White");
+        ButtonGroup characters = new ButtonGroup();
+
+        //adding the characters
+        f.add(characterPick);
+        if(characterCards[1] != null){
+            f.add(scarlett);
+            characters.add(scarlett);
+        }
+        if(characterCards[2] != null){
+            f.add(plum);
+            characters.add(plum);
+        }
+        if(characterCards[3] != null){
+            f.add(peacock);
+            characters.add(peacock);
+        }
+        if(characterCards[4] != null){
+            f.add(green);
+            characters.add(green);
+        }
+        if(characterCards[5] != null){
+            f.add(mustard);
+            characters.add(mustard);
+        }
+        if(characterCards[6] != null){
+            f.add(white);
+            characters.add(white);
+        }
+
+        f.setSize(500,500);
+        f.setLayout(new FlowLayout());
+        f.setVisible(true);
+
+        scarlett.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                numPlayer.add(1);
+                players.add(new Token("Miss Scarlett", "S", 1, 8));//unsure
+                characterCards[1] = null;
+                f.getContentPane().removeAll();
+                f.repaint();
+                numberOfPlayers++;
+                if(numberOfPlayers < n) getTokens();
+                if(numberOfPlayers == n){
+                    sort();
+                    numberOfPlayers = 1;
+                    dealCards();
+                }
+            }
+        });
+
+        plum.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                numPlayer.add(2);
+                players.add(new Token("Professor Plum", "P", 6, 24));//unsure
+                characterCards[2] = null;
+                f.getContentPane().removeAll();
+                f.repaint();
+                numberOfPlayers++;
+                if(numberOfPlayers < n) getTokens();
+                if(numberOfPlayers == n){
+                    sort();
+                    numberOfPlayers = 1;
+                    dealCards();
+                }
+            }
+        });
+
+        peacock.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                numPlayer.add(3);
+                players.add(new Token("Mrs Peacock", "PC", 19, 24));//unsure
+                characterCards[3] = null;
+                f.getContentPane().removeAll();
+                f.repaint();
+                numberOfPlayers++;
+                if(numberOfPlayers < n) getTokens();
+                if(numberOfPlayers == n){
+                    sort();
+                    numberOfPlayers = 1;
+                    dealCards();
+                }
+            }
+        });
+
+        green.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                numPlayer.add(4);
+                players.add(new Token("Mr Green", "G", 25, 16));//unsure
+                characterCards[4] = null;
+                f.getContentPane().removeAll();
+                f.repaint();
+                numberOfPlayers++;
+                if(numberOfPlayers < n) getTokens();
+                if(numberOfPlayers == n){
+                    sort();
+                    numberOfPlayers = 1;
+                    dealCards();
+                }
+            }
+        });
+
+        mustard.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                numPlayer.add(5);
+                players.add(new Token("Colonel Mustard", "M", 8, 1));//unsure
+                characterCards[5] = null;
+                f.getContentPane().removeAll();
+                f.repaint();
+                numberOfPlayers++;
+                if(numberOfPlayers < n) getTokens();
+                if(numberOfPlayers == n){
+                    sort();
+                    numberOfPlayers = 1;
+                    dealCards();
+                }
+            }
+        });
+
+        white.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                numPlayer.add(6);
+                players.add(new Token("Mrs White", "S", 1, 8));//unsure
+                characterCards[6] = null;
+                f.getContentPane().removeAll();
+                f.repaint();
+                numberOfPlayers++;
+                if(numberOfPlayers < n) getTokens();
+                if(numberOfPlayers == n){
+                    sort();
+                    numberOfPlayers = 1;
+                    dealCards();
+                }
+            }
+        });
+
+        //recovering the last room player was in
+        for(Token t: players) prevRoom.put(t, null);
+        //retrieving the weapons
+        Token candleStick = new Token("CandleStick", "src/resources/candle.png", 14,12);
+        Token knife = new Token("Knife", "src/resources/knife.png", 14,13);
+        Token leadPipe = new Token("Lead Pipe", "src/resources/pipe.png", 14,14);
+        Token revolver = new Token("Revolver", "src/resources/revolver.png", 15,12);
+        Token rope = new Token("Rope", "src/resources/rope.png", 15,13);
+        Token wrench = new Token("Wrench", "src/resources/wrench.png", 15,14);
+
+        //adding the weapons into the list
+        weapons.add(candleStick);
+        weapons.add(knife);
+        weapons.add(leadPipe);
+        weapons.add(revolver);
+        weapons.add(rope);
+        weapons.add(wrench);
     }
 
 
