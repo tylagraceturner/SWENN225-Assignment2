@@ -27,7 +27,8 @@ public class Game {
     private ArrayList<Card> tempDeck = new ArrayList<>(); //might not need
     private ArrayList<Suggestion> accusations = new ArrayList<>();
     private ArrayList<Item> tempSuspects = new ArrayList<>();
-    private HashMap<Item, Room> prevRoom = new HashMap<Item, Room> ();
+    //private HashMap<Item, Room> prevRoom = new HashMap<> ();
+    private HashMap<Card, RoomCard> prevRoom = new HashMap<> ();
     private int playerCount = 0;
     List<Suspect> suspectCards;
     HashMap<String,RoomCard> roomMap=new HashMap<> ();
@@ -545,7 +546,7 @@ public class Game {
         });
 
         //the room player was in last
-        for(Item player:players) {
+        for(Item player: players) {
             prevRoom.put(player, null);
         }
         Item candlestick = new Item("Candlestick","src/resources/candlestick.png",15,13);
@@ -920,29 +921,110 @@ public class Game {
         return diceOne+diceTwo;
     }
 
-    public void move(Item p, int diceRoll, int x, int y){
-
+    /**
+     * Player being able to make valid moves on the board
+     * Player's get to move certain steps and invalid steps are not processed
+     * @param p selected player's turn
+     * @param diceRoll determining how many steps can be taken
+     * @param x,y the position of the current player
+     */
+    private void move(Item p, int diceRoll, int x, int y){
         int r = p.getX();
         int c = p.getY();
 
-        RoomCard room = getRoom(y,x);
-        RoomCard currentR = getRoom(p.getX(), p.getY());
+        RoomCard rooms = getRoom(y,x);
+        RoomCard curRoom = getRoom(p.getX(), p.getY());
 
-        if(room != null){
-            if(prevRoom.get(p) != null){
-                if(prevRoom.get(p)!=null){
-                    if(room.getName()==prevRoom.get(p).getRoomCard()){
-                        moved = false;
+        if(rooms != null){
+            if(prevRoom.get(p) != null) {
+                if (rooms.getName() == prevRoom.get(p).getName()) {
+                    System.out.println("Cannot enter the same room again instantly");
+                    moved = false;
+                }
+            } else{
+                ArrayList<QueueItem> roomDoors = getDoors(rooms);
+                boolean validMove = false;
+                //player in room
+                if(curRoom != null){
+                    ArrayList<QueueItem> doors = getDoors(curRoom);//change variable names
+                    for(QueueItem qi1: doors){
+                        for(QueueItem qi2: roomDoors){
+                            int validMoves = board.pathFinding(qi1.row, qi1.col, qi2.row, qi2.col);
+                            if(validMoves != -1 && validMoves < diceRoll-1){
+                                prevRoom.put(p, rooms);
+                                validMove = true;
+                                moved = true;
+                                QueueItem moved = placeInRoom(room, p);
+                                r = moved.row;
+                                c = moved.col;
+                                break;
+                            }
+                        }if(validMove) break;
                     }
-
+                }else{
+                    for(QueueItem drs: doors){
+                        int validMoves = board.pathFinding(p.row, p.col, drs.row, drs.col);
+                        if(validMoves != -1 && validMoves < diceRoll) {
+                            prevRoom.put(p, rooms);
+                            validMove = true;
+                            QueueItem qMoved = placeInRoom(room, p);
+                            r = qMoved.row;
+                            c = qMoved.col;
+                            moved = true;
+                            break;
+                        }
+                    }
+                }
+                if(!validMove){
+                    System.out.println("Invalid Move, Entry into the room is rejected");
+                    moved = false;
                 }
             }
-
-            else{
-                ArrayList<Queue>
+        }else{
+            if(curRoom == null){
+                int pMove = board.pathFinding(p.x, p.y, x, y);
+                System.out.println("You Rolled A: " + diceRoll);
+                System.out.println("Least Moves Available: " + pMove);
+                if(pMove > diceRoll) {
+                    moved = false;
+                    System.out.println("Invalid Steps Selected, Try Again");
+                }else{
+                    System.out.println("Valid Move");
+                    moved = true;
+                    r = y;
+                    c = x;
+                }
             }
-
-    }
+            else{
+                ArrayList<QueueItem> doors = getDoors(rooms);
+                boolean validStep = false;
+                for(QueueItem item: doors){
+                    int validMove = board.pathFinding(item.row, item.col, x, y);
+                    if((validMove > diceRoll) ||
+                            (!(board.board[r][c] == null || board.board[r][c] == "_")) || !(getRoom(r,c) == null)){
+                        moved = false;
+                    }else{
+                        moved = true;
+                        validStep = true;
+                        break;
+                    }
+                }
+                if(validStep){
+                    System.out.println("Valid Move");
+                    moved = true;
+                    r = y;
+                    c = x;
+                }else{
+                    moved = false;
+                    System.out.println("Valid Move taken from: " + curRoom.getName());
+                }
+            }
+        }
+        board.board[p.x][p.y] = "_";
+        p.y = c;
+        p.x = r;
+        System.out.println("current X pos: " + p.x);
+        System.out.println("current Y pos: " + p.y);
     }
 
     public Item makeSuggestionMurderer(Item p){

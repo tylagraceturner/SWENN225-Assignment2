@@ -2,7 +2,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Item {
-
     int x;
     int y;
 
@@ -10,10 +9,6 @@ public class Item {
     String name;
     String item;
     boolean lost = false;
-
-
-
-
 
     //Contructor A
     public Item(String name){
