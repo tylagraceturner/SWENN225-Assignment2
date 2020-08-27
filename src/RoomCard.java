@@ -35,4 +35,8 @@ public class RoomCard extends Card {
         return "Room";
     }
 
+    @Override
+    public String getName() {
+        return super.getName();
+    }
 }

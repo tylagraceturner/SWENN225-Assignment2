@@ -5,6 +5,7 @@ import java.util.ArrayList;
  */
 public class Room  {
 
+    public String name;
     //Room Associations
     private String roomCard;
     private ArrayList<Tile> tiles = new ArrayList<>();

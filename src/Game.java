@@ -1,16 +1,14 @@
 
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.*;
 import java.util.ArrayList;
+import java.util.concurrent.Flow;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -35,6 +33,9 @@ public class Game {
     HashMap<String,RoomCard> roomMap=new HashMap<> ();
     HashMap<RoomCard,Integer> roomNumMapped=new HashMap<> ();
     Card murderScene[] = new Card[3];
+    int pn;
+    RoomCard tempRoom;
+    boolean moved = false;
 
     private ArrayList<Weapon> weapons = new ArrayList<>();
 
@@ -368,7 +369,7 @@ public class Game {
             names.put(players.get(playerCount-1).name,nameOfP);
             nameOfP="";
         }
-        JLabel nm = new JLabel("                                          Player "+(playerCount+1)+" type your name                                          ");
+        JLabel nm = new JLabel("                                          Player "+(playerCount+1)+" - " + "Enter your name :                                          ");
         f.add(nm);
         JTextField tf1 = new JTextField();
         tf1.setPreferredSize( new Dimension( 200, 24 ) );
@@ -379,7 +380,7 @@ public class Game {
             }
         });
         f.add(tf1);
-        JLabel choose = new JLabel("                                                        Player "+(playerCount+1)+", choose a character:                                                                      ");
+        JLabel choose = new JLabel("                                                        Player "+(playerCount+1)+" - " + "Please choose a character:                                                                      ");
         JRadioButton white = new JRadioButton("Mrs. White");
         JRadioButton scarlett = new JRadioButton("Miss Scarlett");
         JRadioButton mustard = new JRadioButton("Colonel Mustard");
@@ -426,9 +427,9 @@ public class Game {
                 f.getContentPane().removeAll();
                 f.repaint();
                 playerCount++;
-                System.out.println("here");
+                //System.out.println("here");
                 if(playerCount<n) {
-                    System.out.println("1");
+                    //System.out.println("1");
                     getTokens();
                 }
                 if(playerCount == n) {
@@ -537,13 +538,13 @@ public class Game {
         }
         Item knife=new Item("Knife","src/images/weapon_knife.png",14,12);
         Item wrench=new Item("Wrench", "src/images/weapon_wrench.png",14,13);
-        Item leadpipe=new Item("Lead Pipe","src/images/weapon_leadpipe.png",14,14);
+        Item leadPipe=new Item("Lead Pipe","src/images/weapon_leadpipe.png",14,14);
         Item rope=new Item("Rope","src/images/weapon_rope.png",15,12);
         Item candlestick=new Item("Candlestick","src/images/weapon_candlestick.png",15,13);
         Item revolver=new Item("Revolver","src/images/weapon_revolver.png",15,14);
         allWeapons.add(knife);
         allWeapons.add(wrench);
-        allWeapons.add(leadpipe);
+        allWeapons.add(leadPipe);
         allWeapons.add(rope);
         allWeapons.add(candlestick);
         allWeapons.add(revolver);
@@ -662,7 +663,7 @@ public class Game {
             }
 
         }
-        //board.board(players);
+        board.board(players);
         nextPlayer();
     }
 
@@ -692,7 +693,7 @@ public class Game {
             player = players.get(count);
         }
         else {
-            JButton begin = new JButton("Begin "+names.get(player.name)+"'s turn");
+            JButton begin = new JButton("Start "+names.get(player.name)+"'s turn");
             f.add(begin);
             f.setSize(600,700);
             f.setLayout(new FlowLayout());
@@ -702,11 +703,11 @@ public class Game {
                 public void actionPerformed(ActionEvent e){
                     f.getContentPane().removeAll();
                     f.repaint();
-                    // boardit();
-                    System.out.println("Your hand:");
+                   displayBoard();
+                    //System.out.println("Your Hand:");
 
-                    Item player = players.get(count);
-                    //handit(player);
+                    Item p = players.get(count);
+                    displayHand(p);
 
                     // rollit();
                 }
@@ -715,6 +716,314 @@ public class Game {
 
     }
 
+    public void displayBoard(){
+        board.printBoard(players, f, allWeapons, tempSuspects);
+        f.setVisible(true);
+    }
+
+    public void displayHand(Item p){
+
+        JLayeredPane layeredPane=new JLayeredPane();
+        layeredPane.setPreferredSize(new Dimension(5+65*p.getPlayersHand().size(), 110));
+        layeredPane.setBorder(BorderFactory.createTitledBorder("Hand"));
+        int i=0;
+        for (Card c : p.getPlayersHand()) {
+            System.out.print(c.getName() + " / ");
+            File file = new File("src/images/"+c.getName()+".png");
+            BufferedImage img;
+            try {
+                img = ImageIO.read(file);
+                ImageIcon icon = new ImageIcon(img);
+                JLabel lbl = new JLabel();
+                lbl.setIcon(icon);
+                lbl.setBounds(6+65*i, 16,
+                        icon.getIconWidth(),
+                        icon.getIconHeight());
+
+                layeredPane.add(lbl, 0);
+                i++;
+
+
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+        f.add(layeredPane);
+        f.setVisible(true);
+    }
+
+
+
+    public void roll(){
+        JButton rollButton = new JButton("Roll Dice");
+        rollButton.setBounds(100, 400, 70, 30);//x axis, y axis, width, height
+        f.add(rollButton);
+        JLabel l = new JLabel("Press the roll button");
+        f.add(l);
+        f.setVisible(true);
+
+        rollButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e){
+                f.getContentPane().removeAll();
+                f.repaint();
+
+                f.getContentPane().removeAll();
+                f.repaint();
+                displayBoard();
+                displayHand(players.get(pn));
+                int roll = rollDice();
+
+                JLabel l = new JLabel("                                           Press the board to move!                                          ");
+                f.add(l);
+                JLabel a = new JLabel("This is "+names.get(players.get(pn).name)+"'s turn they are "+players.get(pn).name);
+                f.add(a);
+                BufferedImage img;
+                File file= new File("/src/images/suspect_"+players.get(pn).item+".png");
+                try {
+                    img = ImageIO.read(file);
+                    ImageIcon icon = new ImageIcon(img);
+                    //  f.setLayout(new FlowLayout());
+                    JLabel lbl = new JLabel();
+                    lbl.setIcon(icon);
+                    f.add(lbl);
+
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+                JLabel b = new JLabel("Position: "+players.get(pn).x+", "+players.get(pn).x);
+                f.add(b);
+
+                f.addMouseListener( new MouseAdapter() {
+                    boolean enabled=true;
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+
+                        if (!enabled) {
+                            return;
+                        }
+                        int x=e.getX();
+                        int xP=1;
+                        int y=e.getY();
+                        int yP=1;
+                        if(y>74 && y<500 && x>94 && x<504) {
+                            x=x-95;
+                            while(x>17) {
+                                x=x-17;
+                                xP++;
+                            }
+                            y=y-75;
+                            while(y>17) {
+                                y=y-17;
+                                yP++;
+                            }
+                        }
+                        yP=25-yP+1;
+                        Item player=players.get(pn);
+                        move(player, roll, yP,xP);
+                        if(moved==true) {
+                            enabled=false;
+                            playerAct();
+                        }
+                        else {
+                            f.remove(l);
+                            JLabel l = new JLabel("Not a valid move!");
+                            f.add(l);
+                            f.setVisible(true);
+                        }
+
+                    }
+                });
+                f.setVisible(true);
+            }
+        });
+    }
+
+    private void playerAct() {
+
+        Item p = players.get(pn);
+        f.getContentPane().removeAll();
+        f.repaint();
+
+
+        JButton turnStart = new JButton("Start " + p.name+"'s Turn");
+        f.add(turnStart);
+        f.setSize(600,700);
+        f.setLayout(new FlowLayout());
+        f.setVisible(true);
+        displayBoard();
+        displayHand(p);
+        f.setVisible(true);
+
+        if(getRoom(p.x, p.y) == null) {	//not in room, therefore next player's turn
+
+            f.getContentPane().removeAll();
+            f.repaint();
+            finalAccuse(p);
+            pn++;
+            nextPlayer();
+        }else {	//inside a room, gets to make a suggestion
+            f.getContentPane().removeAll();
+            f.repaint();
+            tempRoom=getRoom(p.x, p.y);
+            makeSuggestionMurderer(p);
+        }
+    }
+
+    private int rollDice() {
+        int diceOne = (int) (Math.random() * 5) + 1;
+        int diceTwo = (int) (Math.random() * 5) + 1;
+        File file = new File("src/images/"+"dice_"+diceOne+".png");
+        BufferedImage img;
+        try {
+            img = ImageIO.read(file);
+            ImageIcon icon = new ImageIcon(img);
+            f.setLayout(new FlowLayout());
+            JLabel lbl = new JLabel();
+            lbl.setIcon(icon);
+            f.add(lbl);
+            f.setVisible(true);
+            f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        file = new File("src/images/"+"dice_"+diceTwo+".png");
+        try {
+            img = ImageIO.read(file);
+            ImageIcon icon = new ImageIcon(img);
+            f.setLayout(new FlowLayout());
+            JLabel lbl = new JLabel();
+            lbl.setIcon(icon);
+            f.add(lbl);
+            f.setVisible(true);
+            f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return diceOne+diceTwo;
+    }
+
+    public void move(Item p, int diceRoll, int x, int y){
+
+        int r = p.getX();
+        int c = p.getY();
+
+        RoomCard room = getRoom(y,x);
+        RoomCard currentR = getRoom(p.getX(), p.getY());
+
+        if(room!=null){
+            if(prevRoom.get(p) != null){
+                if(prevRoom.get(p)!=null){
+                    if(room.getName()==prevRoom.get(p).getRoomCard()){
+                        moved = false;
+                    }
+
+                }
+            }
+
+            else{
+                ArrayList<Queue>
+            }
+
+    }
+    }
+
+    public Item makeSuggestionMurderer(Item p){
+        return null;
+    }
+
+    public Item finalAccuse(Item p){
+        return null;
+    }
+
+
+    private RoomCard getRoom(int row, int col) {
+        //Hall
+        for(int i=0; i<8; i++){
+            for(int j=10; j<16; j++){
+                if(row==i&&col==j) {
+                    return roomMap.get("Hall");
+                }
+            }
+        }
+
+        //Lounge
+        for(int i=0; i<7; i++){
+            for(int j=0; j<8; j++){
+                if(row==i&&col==j) {
+                    return roomMap.get("Lounge");
+                }
+            }
+        }
+        //Study
+        for(int i=0; i<5; i++){
+            for(int j=18; j<25; j++){
+                if(row==i&&col==j && !(i==1&&j==18)) {
+                    return roomMap.get("Study");
+                }
+            }
+        }
+
+
+        //Library
+        for(int i=7; i<12; i++){
+            for(int j=18; j<25; j++){
+                if(row==i&&col==j && (!(i==7&&j==24))&&(!(i==7&&j==18))&&(!(i==11&&j==24))&&(!(i==11&&j==18))){
+                    return roomMap.get("Library");
+                }
+            }
+        }
+
+        //Billards Room
+        for(int i=13; i<18; i++){
+            for(int j=19; j<25; j++){
+                if(row==i&&col==j ) {
+                    return roomMap.get("Billiards Room");
+                }
+            }
+        }
+
+        //conservatory room
+        for(int i=20; i<25; i++){
+            for(int j=19; j<25; j++){
+                if(row==i&&col==j&& (!(i==20&&j==24))&&(!(i==20&&j==19))) {
+                    return roomMap.get("Conservatory");
+                }
+            }
+        }
+        //ballroom
+        for(int i=18; i<25; i++){
+            for(int j=9; j<17; j++){
+                if(row==i&&col==j&& (!(i==24&&j==9))&& (!(i==24&&j==10))&& (!(i==24&&j==15)&& (!(i==24&&j==16)))) {
+                    return roomMap.get("Ballroom");
+                }
+            }
+        }
+
+        //kitchen
+        for(int i=19; i<25; i++){
+            for(int j=0; j<7; j++){
+                if(row==i&&col==j && (!(j==1 && i==19))) {
+                    return roomMap.get("Kitchen");
+                }
+            }
+        }
+
+        //Dining Room
+        for(int i=10; i<17; i++){
+            for(int j=0; j<9; j++){
+                if(row==i&&col==j && (!(j==6 && i==16))&& (!(j==8 && i==16))&& (!(j==7 && i==16))) {
+                    return roomMap.get("Dining Room");
+                }
+            }
+        }
+        return null;
+
+    }
 
     /**
      * Creates suggestion for player
@@ -1040,9 +1349,9 @@ public class Game {
      *
      * @return the sum of the two dice rolls
      */
-    private int rollDice() {
+    /* private int rollDice() {
         return (int) ((Math.random() * 5 + 1) + (Math.random() * 5 + 1));
-    }
+    } */
 
 
     /**
