@@ -27,11 +27,11 @@ public class Game {
     private ArrayList<Card> tempDeck = new ArrayList<>(); //might not need
     private ArrayList<Suggestion> accusations = new ArrayList<>();
     private ArrayList<Item> tempSuspects = new ArrayList<>();
-    //private HashMap<Item, Room> prevRoom = new HashMap<> ();
-    private HashMap<Card, RoomCard> prevRoom = new HashMap<> ();
+    private HashMap<Item, RoomCard> prevRoom = new HashMap<Item, RoomCard>();
+    //private HashMap<Card, RoomCard> prevRoom = new HashMap<> ();
     private int playerCount = 0;
     List<Suspect> suspectCards;
-    HashMap<String,RoomCard> roomMap=new HashMap<> ();
+    HashMap<String, RoomCard> roomMap=new HashMap<String, RoomCard>();
     HashMap<RoomCard,Integer> roomNumMapped=new HashMap<> ();
     Card murderScene[] = new Card[3];
     int pn;
@@ -942,11 +942,11 @@ public class Game {
                     moved = false;
                 }
             } else{
-                ArrayList<QueueItem> roomDoors = getDoors(rooms);
+                List<QueueItem> roomDoors = getDoors(rooms);
                 boolean validMove = false;
                 //player in room
                 if(curRoom != null){
-                    ArrayList<QueueItem> doors = getDoors(curRoom);//change variable names
+                    List<QueueItem> doors = getDoors(curRoom);//change variable names
                     for(QueueItem qi1: doors){
                         for(QueueItem qi2: roomDoors){
                             int validMoves = board.pathFinding(qi1.row, qi1.col, qi2.row, qi2.col);
@@ -954,7 +954,7 @@ public class Game {
                                 prevRoom.put(p, rooms);
                                 validMove = true;
                                 moved = true;
-                                QueueItem moved = placeInRoom(room, p);
+                                QueueItem moved = placeInRoom(rooms, p);
                                 r = moved.row;
                                 c = moved.col;
                                 break;
@@ -962,15 +962,21 @@ public class Game {
                         }if(validMove) break;
                     }
                 }else{
-                    for(QueueItem drs: doors){
-                        int validMoves = board.pathFinding(p.row, p.col, drs.row, drs.col);
-                        if(validMoves != -1 && validMoves < diceRoll) {
-                            prevRoom.put(p, rooms);
-                            validMove = true;
-                            QueueItem qMoved = placeInRoom(room, p);
-                            r = qMoved.row;
-                            c = qMoved.col;
-                            moved = true;
+                    List<QueueItem> curDoors = getDoors(curRoom);
+                    for(QueueItem cd : curDoors) {
+                        for (QueueItem drs : roomDoors) {
+                            int validMoves = board.pathFinding(cd.row, cd.col, drs.row, drs.col);
+                            if (validMoves != -1 && validMoves < diceRoll) {
+                                prevRoom.put(p, rooms);
+                                validMove = true;
+                                QueueItem qMoved = placeInRoom(rooms, p);
+                                r = qMoved.row;
+                                c = qMoved.col;
+                                moved = true;
+                                break;
+                            }
+                        }
+                        if (validMove) {
                             break;
                         }
                     }
@@ -996,7 +1002,7 @@ public class Game {
                 }
             }
             else{
-                ArrayList<QueueItem> doors = getDoors(rooms);
+                List<QueueItem> doors = getDoors(rooms);
                 boolean validStep = false;
                 for(QueueItem item: doors){
                     int validMove = board.pathFinding(item.row, item.col, x, y);
@@ -1035,9 +1041,15 @@ public class Game {
         return null;
     }
 
-
+    /**
+     * Checks the squares that are allocated per room,
+     * returns null when character is not in a room
+     * @param row
+     * @param col
+     * @return
+     */
     private RoomCard getRoom(int row, int col) {
-        //Hall
+
         for(int i=0; i<8; i++){
             for(int j=10; j<16; j++){
                 if(row==i&&col==j) {
@@ -1046,7 +1058,6 @@ public class Game {
             }
         }
 
-        //Lounge
         for(int i=0; i<7; i++){
             for(int j=0; j<8; j++){
                 if(row==i&&col==j) {
@@ -1054,7 +1065,7 @@ public class Game {
                 }
             }
         }
-        //Study
+
         for(int i=0; i<5; i++){
             for(int j=18; j<25; j++){
                 if(row==i&&col==j && !(i==1&&j==18)) {
@@ -1063,8 +1074,6 @@ public class Game {
             }
         }
 
-
-        //Library
         for(int i=7; i<12; i++){
             for(int j=18; j<25; j++){
                 if(row==i&&col==j && (!(i==7&&j==24))&&(!(i==7&&j==18))&&(!(i==11&&j==24))&&(!(i==11&&j==18))){
@@ -1073,7 +1082,6 @@ public class Game {
             }
         }
 
-        //Billards Room
         for(int i=13; i<18; i++){
             for(int j=19; j<25; j++){
                 if(row==i&&col==j ) {
@@ -1082,7 +1090,6 @@ public class Game {
             }
         }
 
-        //conservatory room
         for(int i=20; i<25; i++){
             for(int j=19; j<25; j++){
                 if(row==i&&col==j&& (!(i==20&&j==24))&&(!(i==20&&j==19))) {
@@ -1090,7 +1097,7 @@ public class Game {
                 }
             }
         }
-        //ballroom
+
         for(int i=18; i<25; i++){
             for(int j=9; j<17; j++){
                 if(row==i&&col==j&& (!(i==24&&j==9))&& (!(i==24&&j==10))&& (!(i==24&&j==15)&& (!(i==24&&j==16)))) {
@@ -1099,7 +1106,6 @@ public class Game {
             }
         }
 
-        //kitchen
         for(int i=19; i<25; i++){
             for(int j=0; j<7; j++){
                 if(row==i&&col==j && (!(j==1 && i==19))) {
@@ -1108,7 +1114,6 @@ public class Game {
             }
         }
 
-        //Dining Room
         for(int i=10; i<17; i++){
             for(int j=0; j<9; j++){
                 if(row==i&&col==j && (!(j==6 && i==16))&& (!(j==8 && i==16))&& (!(j==7 && i==16))) {
@@ -1173,6 +1178,179 @@ public class Game {
         }
         return new Suggestion(p, true, (WeaponCard) weaponC, (RoomCard) roomC, (CharacterCard) characterC); // Get the accusation
     }
+
+    public List<QueueItem> getDoors(RoomCard r){
+        
+        List<QueueItem> q = new ArrayList<>();
+        if(r.getName() == "Hall"){
+            QueueItem door = new QueueItem(8,12);
+            q.add(door);
+            door = new QueueItem(8,13);
+            q.add(door);
+            door = new QueueItem(5,16);
+            q.add(door);
+            return q;
+        }
+        else if(r.getName() == "Lounge"){
+            QueueItem door = new QueueItem(7,7);
+            q.add(door);
+            return q;
+        }
+        else if(r.getName() == "Library"){
+            QueueItem door=new QueueItem(9,17);
+            q.add(door);
+            door=new QueueItem(12,21);
+            q.add(door);
+            return q;
+        }
+        else if(r.getName() == "Study"){
+            QueueItem door=new QueueItem(5,18);
+            q.add(door);
+            return q;
+        }
+        else if(r.getName() == "Ballroom"){
+            QueueItem door=new QueueItem(17,10);
+            q.add(door);
+            door=new QueueItem(17,15);
+            q.add(door);
+            door=new QueueItem(20,8);
+            q.add(door);
+            door=new QueueItem(20,17);
+            q.add(door);
+            return q;
+        }
+        else if(r.getName() == "Kitchen"){
+            QueueItem door=new QueueItem(18,5);
+            q.add(door);
+            return q;
+        }
+        else if(r.getName() == "Conservatory"){
+            QueueItem door=new QueueItem(20,19);
+            q.add(door);
+            return q;
+        }
+        else if(r.getName() == "Billiards Room"){
+            QueueItem door=new QueueItem(12,23);
+            q.add(door);
+            door=new QueueItem(16,18);
+            q.add(door);
+            return q;
+        }
+        else if(r.getName() == "Dining Room"){
+            QueueItem door=new QueueItem(9,7);
+            q.add(door);
+            door=new QueueItem(13,9);
+            q.add(door);
+            return q;
+        }
+        return null;
+        
+    }
+
+    /**
+     * Player input determines what room they are placed in
+     * 1: Lounge, 2: Hall, 3: Study, 4: Library, 5: Billiards Room, 6: Conservatory, 7: Ballroom, 8: Kitchen, 9: Dining Room
+     * @param r
+     * @param p
+     * @return
+     */
+    private QueueItem placeInRoom(RoomCard r, Item p){
+    int x=0;
+    int y=0;
+
+		if(r.getName() == "Lounge") {
+        for(int i=1; i<6; i++){
+            for(int j=1; j<7; j++){
+                if(board.board[i][j]==null||board.board[i][j]=="_") {
+                    x=i;
+                    y=j;
+                }
+            }
+        }
+    }
+		else if(r.getName() == "Hall") {
+        for(int i=1; i<7; i++){
+            for(int j=11; j<15; j++){
+                if(board.board[i][j]==null||board.board[i][j]=="_") {
+                    x=i;
+                    y=j;
+                }
+            }
+        }
+    }
+		else if(r.getName() == "Study") {
+        for(int i=1; i<4; i++){
+            for(int j=19; j<24; j++){
+                if(board.board[i][j]==null||board.board[i][j]=="_") {
+                    x=i;
+                    y=j;
+                }
+            }
+        }
+    }
+		else if(r.getName() == "Library") {
+        for(int i=8; i<11; i++){
+            for(int j=19; j<24; j++){
+                if(board.board[i][j]==null||board.board[i][j]=="_") {
+                    x=i;
+                    y=j;
+                }
+            }
+        }
+    }
+		else if(r.getName() == "Billiards Room") {
+        for(int i=14; i<17; i++){
+            for(int j=20; j<24; j++){
+                if(board.board[i][j]==null||board.board[i][j]=="_") {
+                    x=i;
+                    y=j;
+                }
+            }
+        }
+    }
+		else if(r.getName() == "Conservatory") {
+        for(int i=21; i<24; i++){
+            for(int j=20; j<24; j++){
+                if(board.board[i][j]==null||board.board[i][j]=="_") {
+                    x=i;
+                    y=j;
+                }
+            }
+        }
+    }
+		else if(r.getName() == "Ballroom") {
+        for(int i=19; i<24; i++){
+            for(int j=10; j<16; j++){
+                if(board.board[i][j]==null||board.board[i][j]=="_") {
+                    x=i;
+                    y=j;
+                }
+            }
+        }
+    }
+		else if(r.getName() == "Kitchen") {
+        for(int i=20; i<24; i++){
+            for(int j=1; j<6; j++){
+                if(board.board[i][j]==null||board.board[i][j]=="_") {
+                    x=i;
+                    y=j;
+                }
+            }
+        }
+    }
+		else if(r.getName() == "Dining Room") {
+        for(int i=11; i<16; i++){
+            for(int j=1; j<8; j++){
+                if(board.board[i][j]==null||board.board[i][j]=="_") {
+                    x=i;
+                    y=j;
+                }
+            }
+        }
+    }
+
+		return new QueueItem(x,y);
+}
 
     /**
      * Refutes suggestion for player
