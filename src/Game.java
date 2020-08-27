@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.*;
 import java.util.ArrayList;
-import java.util.concurrent.Flow;
+//import java.util.concurrent.Flow;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -285,7 +285,7 @@ public class Game {
                 f.getContentPane().removeAll();
                 f.repaint();
                 System.out.println("3");
-                getTokens();
+                initialisePlayerTokens();
             }
         });
 
@@ -295,7 +295,7 @@ public class Game {
                 n = 4;
                 f.getContentPane().removeAll();
                 f.repaint();
-                getTokens();
+                initialisePlayerTokens();
             }
         });
 
@@ -305,7 +305,7 @@ public class Game {
                 n = 5;
                 f.getContentPane().removeAll();
                 f.repaint();
-                getTokens();
+                initialisePlayerTokens();
             }
         });
 
@@ -315,7 +315,7 @@ public class Game {
                 n = 6;
                 f.getContentPane().removeAll();
                 f.repaint();
-                getTokens();
+                initialisePlayerTokens();
             }
         });
 
@@ -324,22 +324,22 @@ public class Game {
     private void sort() {
         tempSuspects = new ArrayList<Item>();
         if (playerCount < 6) {
-            if (!nums.contains(1)) {
+            if (!numOfPyr.contains(1)) {
                 tempSuspects.add(new Item("Mrs. White", "W", 25, 10));
             }
-            if (!nums.contains(2)) {
+            if (!numOfPyr.contains(2)) {
                 tempSuspects.add(new Item("Miss Scarlett", "S", 1, 8));
             }
-            if (!nums.contains(3)) {
+            if (!numOfPyr.contains(3)) {
                 tempSuspects.add(new Item("Colonel Mustard", "M", 8, 1));
             }
-            if (!nums.contains(4)) {
+            if (!numOfPyr.contains(4)) {
                 tempSuspects.add(new Item("Professor Plum", "P", 6, 24));
             }
-            if (!nums.contains(5)) {
+            if (!numOfPyr.contains(5)) {
                 tempSuspects.add(new Item("Mrs. Peacock", "C", 19, 24));
             }
-            if (!nums.contains(6)) {
+            if (!numOfPyr.contains(6)) {
                 tempSuspects.add(new Item("Mr. Green", "G", 25, 15));
             }
 
@@ -349,71 +349,78 @@ public class Game {
 
 
     //NEXT STEP TO COMPLETE
-    //public void initialisePlayerTokens() {
-    private String[] characters = {null, "1: Mrs. White", "2: Miss Scarlett", "3: Colonel Mustard",
-            "4: Professor Plum", "5: Mrs. Peacock", "6: Mr. Green"};
+    private String[] characters = {null,
+            "1: Mrs. White",
+            "2: Miss Scarlett",
+            "3: Colonel Mustard",
+            "4: Professor Plum",
+            "5: Mrs. Peacock",
+            "6: Mr. Green"
+    };
+    //list of numbers which represent which players have been taken
+    ArrayList<Integer> numOfPyr=new ArrayList<Integer>();
+    //String for the players name
+    String nameOfPlayers = "";
 
     /**
      * Players choose what character they want to be.
      * Player can add their name
      * Player is added to the list of players.
      */
-    //nums is a list of numbers which represent which players have been taken
-    ArrayList<Integer> nums=new ArrayList<Integer>();
-    //nameOfP is a String for the players name
-    String nameOfP = "";
-    private void getTokens() {
-        if(playerCount>0) {
-            if(nameOfP=="")
-                nameOfP=players.get(playerCount-1).name;
-            names.put(players.get(playerCount-1).name,nameOfP);
-            nameOfP="";
+    private void initialisePlayerTokens() {//originally getTokens()
+        if(playerCount > 0) {
+            if(nameOfPlayers == "")
+                nameOfPlayers=players.get(playerCount-1).name;
+            names.put(players.get(playerCount-1).name,nameOfPlayers);
+            nameOfPlayers = "";
         }
-        JLabel nm = new JLabel("                                          Player "+(playerCount+1)+" - " + "Enter your name :                                          ");
-        f.add(nm);
-        JTextField tf1 = new JTextField();
-        tf1.setPreferredSize( new Dimension( 200, 24 ) );
-        tf1.setBounds(100, 100,200, 24);
-        tf1.addKeyListener(new KeyAdapter(){
+
+        JLabel name = new JLabel("              Player "+(playerCount+1)+" - " + "Enter your name:              ");
+        f.add(name);
+        JTextField tf = new JTextField();
+        tf.setPreferredSize( new Dimension( 200, 24 ) );
+        tf.setBounds(100, 100,200, 24);
+        tf.addKeyListener(new KeyAdapter(){
             public void keyTyped(KeyEvent evt){
-                nameOfP = ((JTextField)evt.getSource()).getText() + String.valueOf(evt.getKeyChar());
+                nameOfPlayers = ((JTextField)evt.getSource()).getText() + String.valueOf(evt.getKeyChar());
             }
         });
-        f.add(tf1);
-        JLabel choose = new JLabel("                                                        Player "+(playerCount+1)+" - " + "Please choose a character:                                                                      ");
+        f.add(tf);
+        JLabel chooseCharacter = new JLabel("               Player "+(playerCount+1)+" - " + "Please choose a character:                ");
         JRadioButton white = new JRadioButton("Mrs. White");
         JRadioButton scarlett = new JRadioButton("Miss Scarlett");
         JRadioButton mustard = new JRadioButton("Colonel Mustard");
         JRadioButton plum = new JRadioButton("Professor Plum");
         JRadioButton peacock = new JRadioButton("Mrs. Peacock");
         JRadioButton green = new JRadioButton("Mr. Green");
-        ButtonGroup chars = new ButtonGroup();
+        ButtonGroup characterButton = new ButtonGroup();
 
-        f.add(choose);
+        f.add(chooseCharacter);
         if(characters[1]!=null) {
             f.add(white);
-            chars.add(white);
+            characterButton.add(white);
         }
         if(characters[2]!=null) {
             f.add(scarlett);
-            chars.add(scarlett);
+            characterButton.add(scarlett);
         }
         if(characters[3]!=null) {
             f.add(mustard);
-            chars.add(mustard);
+            characterButton.add(mustard);
         }
         if(characters[4]!=null) {
             f.add(plum);
-            chars.add(plum);
+            characterButton.add(plum);
         }
         if(characters[5]!=null) {
             f.add(peacock);
-            chars.add(peacock);
+            characterButton.add(peacock);
         }
         if(characters[6]!=null) {
             f.add(green);
-            chars.add(green);
+            characterButton.add(green);
         }
+
         f.setSize(600,700);
         f.setLayout(new FlowLayout());
         f.setVisible(true);
@@ -421,16 +428,16 @@ public class Game {
 
         white.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e){
-                nums.add(1);
+                numOfPyr.add(1);
                 players.add(new Item("Mrs. White", "W", 25, 10));
                 characters[1] = null;
                 f.getContentPane().removeAll();
                 f.repaint();
                 playerCount++;
                 //System.out.println("here");
-                if(playerCount<n) {
+                if(playerCount < n) {
                     //System.out.println("1");
-                    getTokens();
+                    initialisePlayerTokens();
                 }
                 if(playerCount == n) {
                     sort();
@@ -439,16 +446,17 @@ public class Game {
                 }
             }
         });
+
         scarlett.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e){
-                nums.add(2);
+                numOfPyr.add(2);
                 players.add(new Item("Miss Scarlett", "S", 1, 8));
                 characters[2] = null;
                 f.getContentPane().removeAll();
                 f.repaint();
                 playerCount++;
                 if(playerCount<n) {
-                    getTokens();
+                    initialisePlayerTokens();
                 }
                 if(playerCount == n) {
                     sort();
@@ -457,16 +465,17 @@ public class Game {
                 }
             }
         });
+
         mustard.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e){
-                nums.add(3);
+                numOfPyr.add(3);
                 players.add(new Item("Colonel Mustard", "M", 8, 1));
                 characters[3] = null;
                 f.getContentPane().removeAll();
                 f.repaint();
                 playerCount++;
                 if(playerCount<n) {
-                    getTokens();
+                    initialisePlayerTokens();
                 }
                 if(playerCount == n) {
                     sort();
@@ -475,16 +484,17 @@ public class Game {
                 }
             }
         });
+
         plum.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e){
-                nums.add(4);
+                numOfPyr.add(4);
                 players.add(new Item("Professor Plum", "P", 6, 24));
                 characters[4] = null;
                 f.getContentPane().removeAll();
                 f.repaint();
                 playerCount++;
                 if(playerCount<n) {
-                    getTokens();
+                    initialisePlayerTokens();
                 }
                 if(playerCount == n) {
                     sort();
@@ -494,16 +504,17 @@ public class Game {
 
             }
         });
+
         peacock.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e){
-                nums.add(5);
+                numOfPyr.add(5);
                 players.add(new Item("Mrs. Peacock", "C", 19, 24));
                 characters[5] = null;
                 f.getContentPane().removeAll();
                 f.repaint();
                 playerCount++;
                 if(playerCount<n) {
-                    getTokens();
+                    initialisePlayerTokens();
                 }
                 if(playerCount == n) {
                     sort();
@@ -513,16 +524,17 @@ public class Game {
 
             }
         });
+
         green.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                nums.add(6);
+                numOfPyr.add(6);
                 players.add(new Item("Mr. Green", "G", 25, 16));
                 characters[6] = null;
                 f.getContentPane().removeAll();
                 f.repaint();
                 playerCount++;
                 if(playerCount<n) {
-                    getTokens();
+                    initialisePlayerTokens();
                 }
                 if(playerCount == n) {
                     sort();
@@ -533,21 +545,22 @@ public class Game {
         });
 
         //the room player was in last
-        for(Item p:players) {
-            prevRoom.put(p,null);
+        for(Item player:players) {
+            prevRoom.put(player, null);
         }
-        Item knife=new Item("Knife","src/images/weapon_knife.png",14,12);
-        Item wrench=new Item("Wrench", "src/images/weapon_wrench.png",14,13);
-        Item leadPipe=new Item("Lead Pipe","src/images/weapon_leadpipe.png",14,14);
-        Item rope=new Item("Rope","src/images/weapon_rope.png",15,12);
-        Item candlestick=new Item("Candlestick","src/images/weapon_candlestick.png",15,13);
-        Item revolver=new Item("Revolver","src/images/weapon_revolver.png",15,14);
-        allWeapons.add(knife);
-        allWeapons.add(wrench);
-        allWeapons.add(leadPipe);
-        allWeapons.add(rope);
+        Item candlestick = new Item("Candlestick","src/resources/candlestick.png",15,13);
+        Item leadPipe = new Item("Lead Pipe","src/resources/leadpipe.png",14,14);
+        Item knife = new Item("Knife","src/resources/knife.png",14,12);
+        Item revolver = new Item("Revolver","src/resources/revolver.png",15,14);
+        Item rope = new Item("Rope","src/resources/rope.png",15,12);
+        Item wrench = new Item("Wrench", "src/resources/wrench.png",14,13);
+
         allWeapons.add(candlestick);
+        allWeapons.add(leadPipe);
+        allWeapons.add(knife);
         allWeapons.add(revolver);
+        allWeapons.add(rope);
+        allWeapons.add(wrench);
 
 
 
@@ -675,11 +688,11 @@ public class Game {
     public void nextPlayer() {
         System.out.println("In next player");
         if(!one) {
-            if(nameOfP=="")
-                nameOfP=players.get(players.size()-1).name;
-            names.put(players.get(players.size()-1).name,nameOfP);
-            nameOfP="";
-            one=true;
+            if(nameOfPlayers == "")
+                nameOfPlayers = players.get(players.size()-1).name;
+            names.put(players.get(players.size()-1).name, nameOfPlayers);
+            nameOfPlayers = "";
+            one = true;
             for(String n: names.keySet())
                 System.out.println(n+"		"+names.get(n)	);
         }
@@ -717,7 +730,7 @@ public class Game {
     }
 
     public void displayBoard(){
-        board.printBoard(players, f, allWeapons, tempSuspects);
+        board.draw(players, f, allWeapons, tempSuspects);
         f.setVisible(true);
     }
 
@@ -915,7 +928,7 @@ public class Game {
         RoomCard room = getRoom(y,x);
         RoomCard currentR = getRoom(p.getX(), p.getY());
 
-        if(room!=null){
+        if(room != null){
             if(prevRoom.get(p) != null){
                 if(prevRoom.get(p)!=null){
                     if(room.getName()==prevRoom.get(p).getRoomCard()){
