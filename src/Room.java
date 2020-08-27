@@ -3,7 +3,7 @@ import java.util.ArrayList;
 /**
  * Represents the different rooms on the board in Cluedo.
  */
-public class Room {
+public class Room  {
 
     //Room Associations
     private String roomCard;
@@ -12,6 +12,9 @@ public class Room {
     private String print;
 
     //CONSTRUCTOR
+
+
+
     public Room(String aRoomCard, Board board, String print) {
         this.roomCard = aRoomCard;
         this.board = board;

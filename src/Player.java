@@ -16,7 +16,7 @@ public class Player {
 
     //CONSTRUCTOR
     public Player(Board board, CharacterCard charCard) {
-        this.playerPosition = board.get(charCard.getXPos(), charCard.getYPos()); //creates the starting location of the player.
+        //this.playerPosition = board.get(charCard.getXPos(), charCard.getYPos()); //creates the starting location of the player.
         this.playerPosition.setContains(this);
         this.board = board;
         this.playerName = charCard.getName();
@@ -32,7 +32,7 @@ public class Player {
      * @param input - This is a string which represents the character inputted.
      * @return
      */
-    public boolean parser(String input) {
+    /*public boolean parser(String input) {
 
 
         switch (input.toUpperCase()) {
@@ -49,7 +49,7 @@ public class Player {
                 return false;
 
         }
-    }
+    }*/
 
     /**
      * Moves the player along the x and y axis.
@@ -58,7 +58,7 @@ public class Player {
      * @param y - Up or Down movement
      * @return
      */
-    public boolean move(int x, int y) {
+    /*public boolean move(int x, int y) {
 
         boolean cost;
 
@@ -79,7 +79,7 @@ public class Player {
 
         }
         return cost;
-    }
+    } */
 
     /**
      * Moves the player to the specified tile.
