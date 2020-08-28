@@ -34,7 +34,7 @@ public class Game {
     Card murderScene[] = new Card[3];
     RoomCard tempRoom;
     boolean moved = false;
-
+    int count;
     private ArrayList<Weapon> weapons = new ArrayList<>();
 
     private ArrayList<Item> allWeapons = new ArrayList<>();
@@ -160,13 +160,8 @@ public class Game {
         f.add(startButton);
         f.add(quitButton);
         f.setSize(700,800);
-        f.setLocationRelativeTo(null);
+     //   f.setLocationRelativeTo(null);
         f.setLayout(new FlowLayout());
-
-        //-------------------                add in a welcome image here                  -------------------------
-
-
-
 
         File file = new File("images/welcome.png");
         BufferedImage img;
@@ -180,12 +175,6 @@ public class Game {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-
-
-
-        //-----------------------------------------------------------------------------------------------------------
-
 
         f.setVisible(true);
 
@@ -546,12 +535,12 @@ public class Game {
         for(Item player: players) {
             prevRoom.put(player, null);
         }
-        Item candlestick = new Item("Candlestick","images/candlestick.png",15,13);
-        Item leadPipe = new Item("Lead Pipe","images/lead_pipe.png",14,14);
-        Item knife = new Item("Knife","images/knife.png",14,12);
-        Item revolver = new Item("Revolver","images/revolver.png",15,14);
-        Item rope = new Item("Rope","images/rope.png",15,12);
-        Item wrench = new Item("Wrench", "images/wrench.png",14,13);
+        Item candlestick = new Item("Candlestick","images/w_candlestick.png",15,13);
+        Item leadPipe = new Item("Lead Pipe","images/w_lead_pipe.png",14,14);
+        Item knife = new Item("Knife","images/w_knife.png",14,12);
+        Item revolver = new Item("Revolver","images/w_revolver.png",15,14);
+        Item rope = new Item("Rope","images/w_rope.png",15,12);
+        Item wrench = new Item("Wrench", "images/w_wrench.png",14,13);
 
         allWeapons.add(candlestick);
         allWeapons.add(leadPipe);
@@ -559,8 +548,6 @@ public class Game {
         allWeapons.add(revolver);
         allWeapons.add(rope);
         allWeapons.add(wrench);
-
-
 
     }
 
@@ -578,8 +565,6 @@ public class Game {
         weapons.add(new Weapon("Wrench"));
         weapons.add(new Weapon("Rope"));
 
-
-
         //add suspects
         suspectCards.add(new Suspect("Mrs. White"));
         suspectCards.add(new Suspect("Miss Scarlett"));
@@ -587,8 +572,6 @@ public class Game {
         suspectCards.add(new Suspect("Colonel Mustard"));
         suspectCards.add(new Suspect("Mr. Green"));
         suspectCards.add(new Suspect("Mrs. Peacock"));
-
-
 
         //add rooms
         rooms.add(new RoomCard("Kitchen"));
@@ -655,6 +638,7 @@ public class Game {
 
         //shuffle the deck
         Collections.shuffle(deck);
+
     }
 
     /**
@@ -662,7 +646,7 @@ public class Game {
      */
     private void dealCards() {
         boolean b = false;
-        while (!tempDeck.isEmpty()) {
+        while (!deck.isEmpty()) {
             for (Item player : players){
                 player.getPlayersHand().add(deck.pop());
                 if(deck.isEmpty()){
@@ -673,13 +657,15 @@ public class Game {
                 }
             }
 
+
         }
         board.board(players);
+
         nextPlayer();
     }
 
     boolean one=false;
-    int count;
+
     /**
      * Gets next player and allows them to have their turn
      */
