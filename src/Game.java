@@ -1,5 +1,3 @@
-
-
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
@@ -34,7 +32,6 @@ public class Game {
     HashMap<String, RoomCard> roomMap=new HashMap<String, RoomCard>();
     HashMap<RoomCard,Integer> roomNumMapped=new HashMap<> ();
     Card murderScene[] = new Card[3];
-    int pn;
     RoomCard tempRoom;
     boolean moved = false;
 
@@ -97,7 +94,7 @@ public class Game {
                 panel.add(n);
                 x.add(panel);
                 x.setSize(300, 125);
-                x.setLocationRelativeTo(null);
+              //  x.setLocationRelativeTo(null);
                 x.setVisible(true);
 
             }
@@ -169,9 +166,9 @@ public class Game {
         //-------------------                add in a welcome image here                  -------------------------
 
 
-        /*
 
-        File file = new File("PATHNAME");
+
+        File file = new File("images/welcome.png");
         BufferedImage img;
         try {
             img = ImageIO.read(file);
@@ -184,7 +181,7 @@ public class Game {
             e.printStackTrace();
         }
 
-        */
+
 
 
         //-----------------------------------------------------------------------------------------------------------
@@ -549,12 +546,12 @@ public class Game {
         for(Item player: players) {
             prevRoom.put(player, null);
         }
-        Item candlestick = new Item("Candlestick","src/resources/candlestick.png",15,13);
-        Item leadPipe = new Item("Lead Pipe","src/resources/leadpipe.png",14,14);
-        Item knife = new Item("Knife","src/resources/knife.png",14,12);
-        Item revolver = new Item("Revolver","src/resources/revolver.png",15,14);
-        Item rope = new Item("Rope","src/resources/rope.png",15,12);
-        Item wrench = new Item("Wrench", "src/resources/wrench.png",14,13);
+        Item candlestick = new Item("Candlestick","images/candlestick.png",15,13);
+        Item leadPipe = new Item("Lead Pipe","images/lead_pipe.png",14,14);
+        Item knife = new Item("Knife","images/knife.png",14,12);
+        Item revolver = new Item("Revolver","images/revolver.png",15,14);
+        Item rope = new Item("Rope","images/rope.png",15,12);
+        Item wrench = new Item("Wrench", "images/wrench.png",14,13);
 
         allWeapons.add(candlestick);
         allWeapons.add(leadPipe);
@@ -700,14 +697,14 @@ public class Game {
         if(count>=n) {
             count=0;
         }
-        Item player = players.get(count);
-        if(player.lost) {
+        Item p = players.get(count);
+        if(p.lost) {
             count++;
             nextPlayer();
-            player = players.get(count);
+            p = players.get(count);
         }
         else {
-            JButton begin = new JButton("Start "+names.get(player.name)+"'s turn");
+            JButton begin = new JButton("Start "+names.get(p.name)+"'s turn");
             f.add(begin);
             f.setSize(600,700);
             f.setLayout(new FlowLayout());
@@ -718,12 +715,12 @@ public class Game {
                     f.getContentPane().removeAll();
                     f.repaint();
                    displayBoard();
-                    //System.out.println("Your Hand:");
+                    System.out.println("Your Hand:");
 
                     Item p = players.get(count);
                     displayHand(p);
 
-                    // rollit();
+                    roll();
                 }
             });
         }
@@ -743,7 +740,7 @@ public class Game {
         int i=0;
         for (Card c : p.getPlayersHand()) {
             System.out.print(c.getName() + " / ");
-            File file = new File("src/images/"+c.getName()+".png");
+            File file = new File("images/"+c.getName()+".png");
             BufferedImage img;
             try {
                 img = ImageIO.read(file);
@@ -785,15 +782,15 @@ public class Game {
                 f.getContentPane().removeAll();
                 f.repaint();
                 displayBoard();
-                displayHand(players.get(pn));
+                displayHand(players.get(count));
                 int roll = rollDice();
 
                 JLabel l = new JLabel("                                           Press the board to move!                                          ");
                 f.add(l);
-                JLabel a = new JLabel("This is "+names.get(players.get(pn).name)+"'s turn they are "+players.get(pn).name);
+                JLabel a = new JLabel("This is "+names.get(players.get(count).name)+"'s turn they are "+players.get(count).name);
                 f.add(a);
                 BufferedImage img;
-                File file= new File("/src/images/suspect_"+players.get(pn).item+".png");
+                File file= new File("images/character_"+players.get(count).item+".png");
                 try {
                     img = ImageIO.read(file);
                     ImageIcon icon = new ImageIcon(img);
@@ -805,7 +802,7 @@ public class Game {
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }
-                JLabel b = new JLabel("Position: "+players.get(pn).x+", "+players.get(pn).x);
+                JLabel b = new JLabel("Position: "+players.get(count).x+", "+players.get(count).x);
                 f.add(b);
 
                 f.addMouseListener( new MouseAdapter() {
@@ -833,7 +830,7 @@ public class Game {
                             }
                         }
                         yP=25-yP+1;
-                        Item player=players.get(pn);
+                        Item player=players.get(count);
                         move(player, roll, yP,xP);
                         if(moved==true) {
                             enabled=false;
@@ -855,10 +852,9 @@ public class Game {
 
     private void playerAct() {
 
-        Item p = players.get(pn);
+        Item p = players.get(count);
         f.getContentPane().removeAll();
         f.repaint();
-
 
         JButton turnStart = new JButton("Start " + p.name+"'s Turn");
         f.add(turnStart);
@@ -874,7 +870,7 @@ public class Game {
             f.getContentPane().removeAll();
             f.repaint();
             finalAccuse(p);
-            pn++;
+            count++;
             nextPlayer();
         }else {	//inside a room, gets to make a suggestion
             f.getContentPane().removeAll();
@@ -887,7 +883,7 @@ public class Game {
     private int rollDice() {
         int diceOne = (int) (Math.random() * 5) + 1;
         int diceTwo = (int) (Math.random() * 5) + 1;
-        File file = new File("src/images/"+"dice_"+diceOne+".png");
+        File file = new File("images/"+"d_"+diceOne+".png");
         BufferedImage img;
         try {
             img = ImageIO.read(file);
@@ -903,7 +899,7 @@ public class Game {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        file = new File("src/images/"+"dice_"+diceTwo+".png");
+        file = new File("images/"+"d_"+diceTwo+".png");
         try {
             img = ImageIO.read(file);
             ImageIcon icon = new ImageIcon(img);
@@ -1562,11 +1558,6 @@ public class Game {
 
         return new Suggestion(mWeapon, mRoom, the_murderer);
     }
-
-
-
-
-
 
 
     /**

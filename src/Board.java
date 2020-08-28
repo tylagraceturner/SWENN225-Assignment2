@@ -347,7 +347,7 @@ public void draw(List<Item> players, JFrame f, List<Item> weapons, List<Item> np
     layeredPane.setPreferredSize(new Dimension(420, 451));
     layeredPane.setBorder(BorderFactory.createTitledBorder("Board"));
 
-    File file = new File("src/resources/board.png");
+    File file = new File("images/board.png");
     BufferedImage bi;
     try {
         bi = ImageIO.read(file);
@@ -368,7 +368,7 @@ public void draw(List<Item> players, JFrame f, List<Item> weapons, List<Item> np
 
 
     for(Item player : players) {
-        file = new File("src/images/suspect_"+player.item+".png");
+        file = new File("images/character_"+player.item+".png");
         try {
             bi = ImageIO.read(file);
             ImageIcon icon = new ImageIcon(bi);
@@ -390,7 +390,7 @@ public void draw(List<Item> players, JFrame f, List<Item> weapons, List<Item> np
     }
 
     for(Item npc : npcPys) {
-        file = new File("src/images/suspect_"+npc.item+".png");
+        file = new File("images/character_"+npc.item+".png");
         try {
             bi = ImageIO.read(file);
             ImageIcon icon = new ImageIcon(bi);
