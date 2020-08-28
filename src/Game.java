@@ -271,7 +271,7 @@ public class Game {
         f.add(fivePlayers);
         f.add(sixPlayers);
 
-        f.setSize(700,800);
+        f.setSize(600,700);
         f.setLocationRelativeTo(null);
         f.setLayout(new FlowLayout());
         f.setVisible(true);
