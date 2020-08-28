@@ -34,11 +34,6 @@ public class Game {
     Card murderScene[] = new Card[3];
     RoomCard tempRoom;
     boolean moved = false;
-
-    private Item suspect;
-    private Item suspectWeapon;
-    private RoomCard suspectRoom;
-
     private Item finalMurderer;
     private Item finalWeapon;
     private RoomCard finalRoom; //might need to change to roomCard
@@ -170,8 +165,8 @@ public class Game {
 
         f.add(startButton);
         f.add(quitButton);
-        f.setSize(500,600);
-       f.setLocationRelativeTo(null);
+        f.setSize(700,800);
+     //   f.setLocationRelativeTo(null);
         f.setLayout(new FlowLayout());
 
         File file = new File("images/welcome.png");
@@ -271,7 +266,7 @@ public class Game {
         f.add(fivePlayers);
         f.add(sixPlayers);
 
-        f.setSize(600,700);
+        f.setSize(700,800);
         f.setLocationRelativeTo(null);
         f.setLayout(new FlowLayout());
         f.setVisible(true);
@@ -1046,7 +1041,7 @@ public class Game {
 
     public void chooseFinalWeapon(Item p){
 
-        JLabel sug = new JLabel(p.getPlayerName() + ", please make a suggestion for the final murder weapon:");
+        JLabel sug = new JLabel(p.getPlayerName() + ", please make a suggestion for the murder weapon:");
         JRadioButton k = new JRadioButton("Knife");
         JRadioButton l = new JRadioButton("Lead Pipe");
         JRadioButton r = new JRadioButton("Rope");
@@ -1335,7 +1330,7 @@ public class Game {
     }
 
     private void makeFinalSuggestion(Item p) {
-        if(!finalMurderer.name.equals(murderScene[0].name) && (!finalWeapon.name.equals(murderScene[1].name)) && (!finalRoom.getName().equals(murderScene[2].name))) {
+        if(!finalMurderer.name.equals(murderScene[0].getName()) && !finalWeapon.name.equals(murderScene[1].getName()) && !finalRoom.getName().equals(murderScene[2].getName())) {
             JLabel l = new JLabel("You have lost.");
             JButton con = new JButton("Continue");
             p.lost = true;
@@ -1392,10 +1387,275 @@ public class Game {
             f.getContentPane().removeAll();
             f.repaint();
             tempRoom=getRoom(p.x, p.y);
-            chooseSuggestionMurderer(p); //chnaged chooseSuggestionMurderer
+            chooseFinalMurder(p);
         }
     }
 
+    private int rollDice() {
+        int diceOne = (int) (Math.random() * 5) + 1;
+        int diceTwo = (int) (Math.random() * 5) + 1;
+        File file = new File("images/"+"d_"+diceOne+".png");
+        BufferedImage img;
+        try {
+            img = ImageIO.read(file);
+            ImageIcon icon = new ImageIcon(img);
+            f.setLayout(new FlowLayout());
+            JLabel lbl = new JLabel();
+            lbl.setIcon(icon);
+            f.add(lbl);
+            f.setVisible(true);
+            f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        file = new File("images/"+"d_"+diceTwo+".png");
+        try {
+            img = ImageIO.read(file);
+            ImageIcon icon = new ImageIcon(img);
+            f.setLayout(new FlowLayout());
+            JLabel lbl = new JLabel();
+            lbl.setIcon(icon);
+            f.add(lbl);
+            f.setVisible(true);
+            f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return diceOne+diceTwo;
+    }
+
+    /**
+     * Player being able to make valid moves on the board
+     * Player's get to move certain steps and invalid steps are not processed
+     * @param p selected player's turn
+     * @param diceRoll determining how many steps can be taken
+     * @param x,y the position of the current player
+     */
+    private void move(Item p, int diceRoll, int y, int x){
+        int r = p.getX();
+        int c = p.getY();
+
+        RoomCard rooms = getRoom(y,x);
+        RoomCard curRoom = getRoom(p.getX(), p.getY());
+
+        if(rooms != null){
+            if(prevRoom.get(p) != null) {
+                if (rooms.getName() == prevRoom.get(p).getName()) {
+                    System.out.println("Cannot enter the same room again instantly");
+                    moved = false;
+                }
+            } else{
+                List<QueueItem> roomDoors = getDoors(rooms);
+                boolean validMove = false;
+                //player in room
+                if(curRoom == null){
+                    for(QueueItem door : roomDoors){
+                            int validMoves = board.pathFinding(p.x, p.y, door.row, door.col);
+                            if(validMoves != -1 && validMoves < diceRoll){
+                                prevRoom.put(p, rooms);
+                                validMove = true;
+                                moved = true;
+                                QueueItem moved = placeInRoom(rooms, p);
+                                r = moved.row;
+                                c = moved.col;
+                                break;
+                            }
+                        }
+                    }
+                    else{
+                    List<QueueItem> curDoors = getDoors(curRoom);
+                    for(QueueItem cd : curDoors) {
+                        for (QueueItem door : roomDoors) {
+                            int validMoves = board.pathFinding(cd.row, cd.col, door.row, door.col);
+                            if (validMoves != -1 && validMoves < diceRoll) {
+                                prevRoom.put(p, rooms);
+                                validMove = true;
+                                QueueItem qMoved = placeInRoom(rooms, p);
+                                r = qMoved.row;
+                                c = qMoved.col;
+                                moved = true;
+                                break;
+                            }
+                        }
+                        if (validMove) {
+                            break;
+                        }
+                    }
+                }
+                if(!validMove){
+                    System.out.println("Invalid Move, Entry into the room is rejected");
+                    moved = false;
+                }
+            }
+        }else{
+            if(curRoom == null){
+                int pMove = board.pathFinding(p.x, p.y, x, y);
+                System.out.println("You Rolled A: " + diceRoll);
+                System.out.println("Least Moves Available: " + pMove);
+                if(pMove > diceRoll) {
+                    moved = false;
+                    System.out.println("Invalid Steps Selected, Try Again");
+                }else{
+                    System.out.println("Valid Move");
+                    moved = true;
+                    r = y;
+                    c = x;
+                }
+            }
+            else{
+                List<QueueItem> doors = getDoors(rooms);
+                boolean validStep = false;
+                for(QueueItem item: doors){
+                    int validMove = board.pathFinding(item.row, item.col, x, y);
+                    if((validMove > diceRoll) || (!(board.board[r][c]==(null)||board.board[r][c]==("_"))) || (!(getRoom(r,c)==null))){
+                        moved = false;
+                    } else{
+                        moved = true;
+                        validStep = true;
+                        break;
+                    }
+                }
+                if(validStep){
+                    System.out.println("Valid Move");
+                    moved = true;
+                    r = y;
+                    c = x;
+                }else{
+                    moved = false;
+                    System.out.println("Valid Move taken from: " + curRoom.getName());
+                }
+            }
+        }
+        board.board[p.x][p.y] = "_";
+        p.y = c;
+        p.x = r;
+        System.out.println("current X pos: " + p.x);
+        System.out.println("current Y pos: " + p.y);
+    }
+
+    public void checkPlayer(Item p, Integer n){
+        if(n >= players.size()){
+            n = 0;
+        }
+
+        Integer num = n +1;
+        Item nP = players.get(n);
+        JButton begin = new JButton("Pass to " + nP.name);
+        f.add(begin);
+        f.setSize(600,700);
+        f.setLayout(new FlowLayout());
+        f.setVisible(true);
+        int oldN = n;
+        begin.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e){
+                if(oldN == playerCount){
+                    System.out.println("Pass to the player");
+                    f.getContentPane().removeAll();
+                    f.repaint();
+                    revealHand(null,null);
+                }
+                else{
+                    System.out.println("person");
+                    f.getContentPane().removeAll();
+                    f.repaint();
+                    System.out.println("Your hand:");
+                    JLabel name = new JLabel(nP.name);
+                    f.add(name);
+                    ArrayList<Card> theirCards =new ArrayList<>();
+
+                    displayHand(nP);
+                    JLabel choose = new JLabel(p.name+" accused "+finalMurderer.name+" with the "+finalWeapon.name+" in the "+finalRoom.name);
+                    f.add(choose);
+                    for(Card c : nP.getPlayersHand()){
+                        if(c.getName() == finalMurderer.name || c.getName() == finalWeapon.name || c.getName() == finalRoom.getName()){
+                            theirCards.add(c);
+                        }
+                    }
+                    if(theirCards.size() == 0){
+                        JLabel no = new JLabel("No accused cards. Pass turn");
+                        f.add(no);
+                        JButton begin = new JButton("Pass");
+                        f.add(begin);
+                        begin.addActionListener(new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                f.getContentPane().removeAll();
+                                f.repaint();
+                                checkPlayer(p, num);
+                            }
+                        });
+                    }
+                    else{
+                        for(Card c : theirCards){
+                            JButton b = new JButton("Show " + c.getName());
+                            f.add(b);
+                            b.addActionListener(new ActionListener() {
+                                @Override
+                                public void actionPerformed(ActionEvent e) {
+                                    f.getContentPane().removeAll();
+                                    f.repaint();
+                                    revealHand(p, nP);
+                                }
+                            });
+                        }
+                    }
+                    f.setVisible(true);
+                }
+            }
+        });
+    }
+
+    public void revealHand(Item p, Card c, Item p2){
+        JButton pass = new JButton("Continue to " + p.name+"'s turn");
+        f.add(pass);
+        f.setSize(600,700);
+        f.setVisible(true);
+        pass.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                f.getContentPane().removeAll();
+                f.repaint();
+                JLabel l = new JLabel(p2.name + "has shown you:");
+                f.add(l);
+
+                File file = new File(c.getName()+".png");
+                BufferedImage img;
+
+                try {
+                    img = ImageIO.read(file);
+                    ImageIcon i = new ImageIcon(img);
+                    JLabel label = new JLabel();
+                    label.setIcon(i);
+                    f.add(label);
+                    f.setVisible(true);
+
+
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+
+                finalAccuse(p);
+                JButton endTurn = new JButton("End Turn");
+                f.add(endTurn);
+                f.setVisible(true);
+
+                endTurn.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        f.getContentPane().removeAll();
+                        f.repaint();
+                        playerCont++;
+                        nextPlayer();
+                    }
+                });
+            }
+        });
+    }
+    
     public void chooseSuggestionMurderer(Item p){
 
         JLabel sug = new JLabel(p.getPlayerName() + ", please make a suggestion for the murderer: ");
@@ -1788,269 +2048,6 @@ public class Game {
             }
         });
 
-    }
-
-    public void checkPlayer(Item p, Integer i){
-
-        if(n >= players.size()){
-            n = 0;
-        }
-
-        Integer num = n +1;
-        Item nP = players.get(n);
-        JButton begin = new JButton("Pass to " + nP.name);
-        f.add(begin);
-        f.setSize(600,700);
-        f.setLayout(new FlowLayout());
-        f.setVisible(true);
-        int oldN = n;
-        begin.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e){
-                if(oldN == playerCont){
-                    f.getContentPane().removeAll();
-                    f.repaint();
-                    revealHand(p,null,null);
-                }
-                else{
-                    f.getContentPane().removeAll();
-                    f.repaint();
-                    System.out.println("Your hand:");
-                    JLabel name = new JLabel(nP.name);
-                    f.add(name);
-                    ArrayList<Card> theirCards =new ArrayList<>();
-
-                    displayHand(nP);
-                    JLabel choose = new JLabel(p.name+" accused "+finalMurderer.name+" with the "+finalWeapon.name+" in the "+finalRoom.name);
-                    f.add(choose);
-                    for(Card c : nP.getPlayersHand()){
-                        if(c.getName() == finalMurderer.name || c.getName() == finalWeapon.name || c.getName() == finalRoom.getName()){
-                            theirCards.add(c);
-                        }
-                    }
-                    if(theirCards.size() == 0){
-                        JLabel no = new JLabel("No accused cards. Pass turn");
-                        f.add(no);
-                        JButton begin = new JButton("Pass");
-                        f.add(begin);
-                        begin.addActionListener(new ActionListener() {
-                            @Override
-                            public void actionPerformed(ActionEvent e) {
-                                f.getContentPane().removeAll();
-                                f.repaint();
-                                checkPlayer(p, num);
-                            }
-                        });
-                    }
-                    else{
-                        for(Card c : theirCards){
-                            JButton b = new JButton("Reveal " + c.getName());
-                            f.add(b);
-                            b.addActionListener(new ActionListener() {
-                                @Override
-                                public void actionPerformed(ActionEvent e) {
-                                    f.getContentPane().removeAll();
-                                    f.repaint();
-                                    revealHand(p, c, nP);
-                                }
-                            });
-                        }
-                    }
-                    f.setVisible(true);
-                }
-            }
-        });
-
-    }
-
-    public void revealHand(Item p, Card c, Item p2){
-        JButton pass = new JButton("Continue to " + p.name+"'s turn");
-        f.add(pass);
-        f.setSize(600,700);
-        f.setVisible(true);
-        pass.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                f.getContentPane().removeAll();
-                f.repaint();
-                JLabel l = new JLabel(p2.name + "has shown you:");
-                f.add(l);
-
-                File file = new File(c.getName()+".png");
-                BufferedImage img;
-
-                try {
-                    img = ImageIO.read(file);
-                    ImageIcon i = new ImageIcon(img);
-                    JLabel label = new JLabel();
-                    label.setIcon(i);
-                    f.add(label);
-                    f.setVisible(true);
-
-
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
-
-                finalAccuse(p);
-                JButton endTurn = new JButton("End Turn");
-                f.add(endTurn);
-                f.setVisible(true);
-
-                endTurn.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        f.getContentPane().removeAll();
-                        f.repaint();
-                        playerCont++;
-                        nextPlayer();
-                    }
-                });
-            }
-        });
-    }
-
-    private int rollDice() {
-        int diceOne = (int) (Math.random() * 5) + 1;
-        int diceTwo = (int) (Math.random() * 5) + 1;
-        File file = new File("images/"+"d_"+diceOne+".png");
-        BufferedImage img;
-        try {
-            img = ImageIO.read(file);
-            ImageIcon icon = new ImageIcon(img);
-            f.setLayout(new FlowLayout());
-            JLabel lbl = new JLabel();
-            lbl.setIcon(icon);
-            f.add(lbl);
-            f.setVisible(true);
-            f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        file = new File("images/"+"d_"+diceTwo+".png");
-        try {
-            img = ImageIO.read(file);
-            ImageIcon icon = new ImageIcon(img);
-            f.setLayout(new FlowLayout());
-            JLabel lbl = new JLabel();
-            lbl.setIcon(icon);
-            f.add(lbl);
-            f.setVisible(true);
-            f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        return diceOne+diceTwo;
-    }
-
-    /**
-     * Player being able to make valid moves on the board
-     * Player's get to move certain steps and invalid steps are not processed
-     * @param p selected player's turn
-     * @param diceRoll determining how many steps can be taken
-     * @param x,y the position of the current player
-     */
-    private void move(Item p, int diceRoll, int x, int y){
-        int r = p.getX();
-        int c = p.getY();
-
-        RoomCard rooms = getRoom(y,x);
-        RoomCard curRoom = getRoom(p.getX(), p.getY());
-
-        if(rooms != null){
-            if(prevRoom.get(p) != null) {
-                if (rooms.getName() == prevRoom.get(p).getName()) {
-                    System.out.println("Cannot enter the same room again instantly");
-                    moved = false;
-                }
-            } else{
-                List<QueueItem> roomDoors = getDoors(rooms);
-                boolean validMove = false;
-                //player in room
-                if(curRoom == null){
-                    for(QueueItem door : roomDoors){
-                        int validMoves = board.pathFinding(p.x, p.y, door.row, door.col);
-                        if(validMoves != -1 && validMoves < diceRoll){
-                            prevRoom.put(p, rooms);
-                            validMove = true;
-                            moved = true;
-                            QueueItem moved = placeInRoom(rooms, p);
-                            r = moved.row;
-                            c = moved.col;
-                            break;
-                        }
-                    }
-                }
-                else{
-                    List<QueueItem> curDoors = getDoors(curRoom);
-                    for(QueueItem cd : curDoors) {
-                        for (QueueItem door : roomDoors) {
-                            int validMoves = board.pathFinding(cd.row, cd.col, door.row, door.col);
-                            if (validMoves != -1 && validMoves < diceRoll) {
-                                prevRoom.put(p, rooms);
-                                validMove = true;
-                                QueueItem qMoved = placeInRoom(rooms, p);
-                                r = qMoved.row;
-                                c = qMoved.col;
-                                moved = true;
-                                break;
-                            }
-                        }
-                        if (validMove) {
-                            break;
-                        }
-                    }
-                }
-                if(!validMove){
-                    System.out.println("Invalid Move, Entry into the room is rejected");
-                    moved = false;
-                }
-            }
-        }else{
-            if(curRoom == null){
-                int pMove = board.pathFinding(p.x, p.y, x, y);
-                System.out.println("You Rolled A: " + diceRoll);
-                System.out.println("Least Moves Available: " + pMove);
-                if(pMove > diceRoll) {
-                    moved = false;
-                    System.out.println("Invalid Steps Selected, Try Again");
-                }else{
-                    System.out.println("Valid Move");
-                    moved = true;
-                    r = y;
-                    c = x;
-                }
-            }
-            else{
-                List<QueueItem> doors = getDoors(rooms);
-                boolean validStep = false;
-                for(QueueItem item: doors){
-                    int validMove = board.pathFinding(item.row, item.col, x, y);
-                    if((validMove > diceRoll) || (!(board.board[r][c]==(null)||board.board[r][c]==("_"))) || (!(getRoom(r,c)==null))){
-                        moved = false;
-                    } else{
-                        moved = true;
-                        validStep = true;
-                        break;
-                    }
-                }
-                if(validStep){
-                    System.out.println("Valid Move");
-                    moved = true;
-                    r = y;
-                    c = x;
-                }else{
-                    moved = false;
-                    System.out.println("Valid Move taken from: " + curRoom.getName());
-                }
-            }
-        }
-        board.board[p.x][p.y] = "_";
-        p.y = c;
-        p.x = r;
     }
 
     /**
