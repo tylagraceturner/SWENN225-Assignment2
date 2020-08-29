@@ -5,25 +5,21 @@ import java.util.ArrayList;
  */
 public class Room  {
 
-    public String name;
     //Room Associations
+    public String name;
     private String roomCard;
     private ArrayList<Tile> tiles = new ArrayList<>();
     private Board board;
     private String print;
 
     //CONSTRUCTOR
-
-
-
-    public Room(String aRoomCard, Board board, String print) {
-        this.roomCard = aRoomCard;
+    public Room(String roomCard, Board board, String print) {
+        this.roomCard = roomCard;
         this.board = board;
         this.print = print;
     }
 
     //INTERFACE
-
     /**
      * @return room card
      */
@@ -54,7 +50,6 @@ public class Room  {
             tile.setPrint(print);
         }
     }
-
     /**
      * @return character name as print
      */

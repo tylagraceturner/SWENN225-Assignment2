@@ -15,6 +15,8 @@ public class Suggestion {
     private RoomCard roomCard;
 
     //CONSTRUCTORS
+
+    //Constructor A
     public Suggestion(Player aSuggestingPlayer, boolean aIsAccusation, WeaponCard aWeapon, RoomCard aRoom, CharacterCard aCharacter) {
         isAccusation = aIsAccusation;
         weapon = aWeapon;
@@ -32,6 +34,7 @@ public class Suggestion {
         }
     }
 
+    //Constructor B
     public Suggestion(WeaponCard aWeapon, RoomCard aRoom, CharacterCard aCharacter) {
         suggestingPlayer = null;
         isAccusation = false;
@@ -42,42 +45,62 @@ public class Suggestion {
 
     //INTERFACE
 
-    //setting the selected accusation as the accusation
-    public boolean setIsAccusation(boolean aIsAccusation) {
+    /**
+     * Setting the selected accusation as the accusation
+     * @param isAccusation, true or false
+     * @return wasSet, whether it was true or false
+     * */
+    public boolean setIsAccusation(boolean isAccusation) {
         boolean wasSet = false;
-        isAccusation = aIsAccusation;
+        this.isAccusation = isAccusation;
         wasSet = true;
         return wasSet;
     }
 
-    //setting the selected weapon as the weapon
-    public boolean setWeapon(WeaponCard aWeapon) {
+    /**
+     * Setting the selected weapon as the weapon
+     * @param weapon, true or false
+     * @return wasSet, whether it was true or false
+     * */
+    public boolean setWeapon(WeaponCard weapon) {
         boolean wasSet = false;
-        weapon = aWeapon;
+        this.weapon = weapon;
         wasSet = true;
         return wasSet;
     }
 
-    //setting the selected room as the room
-    public boolean setRoom(RoomCard aRoom) {
+    /**
+     * Setting the selected room as the room
+     * @param room, true or false
+     * @return wasSet, whether it was true or false
+     * */
+    public boolean setRoom(RoomCard room) {
         boolean wasSet = false;
-        room = aRoom;
+        this.room = room;
         wasSet = true;
         return wasSet;
     }
 
-    //setting the selected character as the character
-    public boolean setCharacter(CharacterCard aCharacter) {
+    /**
+     * Setting the selected character as the character
+     * @param character, true or false
+     * @return wasSet, whether it was true or false
+     * */
+    public boolean setCharacter(CharacterCard character) {
         boolean wasSet = false;
-        character = aCharacter;
+        this.character = character;
         wasSet = true;
         return wasSet;
     }
 
-    //setting the player as the suggested player
-    public boolean setSuggestingPlayer(Player aSuggestingPlayer) {
+    /**
+     * Setting the selected player as the player
+     * @param suggestingPlayer, true or false
+     * @return wasSet, whether it was true or false
+     * */
+    public boolean setSuggestingPlayer(Player suggestingPlayer) {
         boolean wasSet = false;
-        suggestingPlayer = aSuggestingPlayer;
+        this.suggestingPlayer = suggestingPlayer;
         wasSet = true;
         return wasSet;
     }
@@ -139,39 +162,39 @@ public class Suggestion {
     }
 
     /**
-     * @param aNewWeaponCard, assigning card
+     * @param newWeaponCard, assigning card
      * @return wasSet
      */
-    public boolean setWeaponCard(WeaponCard aNewWeaponCard) {
+    public boolean setWeaponCard(WeaponCard newWeaponCard) {
         boolean wasSet = false;
-        if (aNewWeaponCard != null) {
-            weaponCard = aNewWeaponCard;
+        if (newWeaponCard != null) {
+            weaponCard = newWeaponCard;
             wasSet = true;
         }
         return wasSet;
     }
 
     /**
-     * @param aNewCharacterCard, assigning card
+     * @param newCharacterCard, assigning card
      * @return wasSet
      */
-    public boolean setCharacterCard(CharacterCard aNewCharacterCard) {
+    public boolean setCharacterCard(CharacterCard newCharacterCard) {
         boolean wasSet = false;
-        if (aNewCharacterCard != null) {
-            characterCard = aNewCharacterCard;
+        if (newCharacterCard != null) {
+            characterCard = newCharacterCard;
             wasSet = true;
         }
         return wasSet;
     }
 
     /**
-     * @param aNewRoomCard, assigning card
+     * @param newRoomCard, assigning card
      * @return wasSet
      */
-    public boolean setRoomCard(RoomCard aNewRoomCard) {
+    public boolean setRoomCard(RoomCard newRoomCard) {
         boolean wasSet = false;
-        if (aNewRoomCard != null) {
-            roomCard = aNewRoomCard;
+        if (newRoomCard != null) {
+            roomCard = newRoomCard;
             wasSet = true;
         }
         return wasSet;

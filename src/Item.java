@@ -1,6 +1,9 @@
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents the item cards in Cluedo.
+ */
 public class Item {
     int x;
     int y;
@@ -10,7 +13,7 @@ public class Item {
     String item;
     boolean lost = false;
 
-    //Contructor A
+    //Constructor A
     public Item(String name){
         this.name = name;
     }
@@ -45,11 +48,16 @@ public class Item {
         return name;
     }
 
-
+    /**
+     * @return the x position
+     */
     public int getX() {
         return x;
     }
 
+    /**
+     * @return the y position of the player
+     */
     public int getY() {
         return y;
     }

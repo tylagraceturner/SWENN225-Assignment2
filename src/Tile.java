@@ -16,7 +16,6 @@ public class Tile {
     }
 
     //INTERFACE
-
     /**
      * @return room
      */

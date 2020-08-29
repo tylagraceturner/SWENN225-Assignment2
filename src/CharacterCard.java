@@ -18,12 +18,12 @@ public class CharacterCard extends Card {
     /**
      * setting the x position of the character card
      *
-     * @param aXPos, the position
+     * @param xPos, the position
      * @return wasSet, true or false to check if it has been set
      */
-    public boolean setXPos(int aXPos) {
+    public boolean setXPos(int xPos) {
         boolean wasSet = false;
-        xPos = aXPos;
+        this.xPos = xPos;
         wasSet = true;
         return wasSet;
     }
@@ -31,12 +31,12 @@ public class CharacterCard extends Card {
     /**
      * setting the y position of the character card
      *
-     * @param aYPos, the position
+     * @param yPos, the position
      * @return wasSet, true or false to check if it has been set
      */
-    public boolean setYPos(int aYPos) {
+    public boolean setYPos(int yPos) {
         boolean wasSet = false;
-        yPos = aYPos;
+        this.yPos = yPos;
         wasSet = true;
         return wasSet;
     }

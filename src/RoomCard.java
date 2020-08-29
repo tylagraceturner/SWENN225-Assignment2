@@ -1,7 +1,6 @@
 /**
  * Represents the room cards in Cluedo.
  */
-
 public class RoomCard extends Card {
     //CONSTRUCTOR
     public RoomCard(String aName) {
@@ -9,7 +8,6 @@ public class RoomCard extends Card {
     }
 
     //INTERFACE
-
     /**
      * @return character name as print
      */
