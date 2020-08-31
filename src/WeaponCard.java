@@ -8,6 +8,7 @@ public class WeaponCard extends Card {
     }
 
     //INTERFACE
+
     /**
      * @return weapon name as print
      */

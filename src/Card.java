@@ -4,7 +4,7 @@
 
 public abstract class Card {
     //Card Attributes
-    String name;
+    private String name;
 
     //CONSTRUCTOR
     public Card(String aName) {

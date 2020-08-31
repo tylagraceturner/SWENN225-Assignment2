@@ -4,8 +4,8 @@
 public class Suspect extends Card {
     //Constructor
     public Suspect(String name) {
-            super(name);
-        }
+        super(name);
+    }
 
     @Override
     /**
@@ -25,4 +25,3 @@ public class Suspect extends Card {
     }
 
 }
-

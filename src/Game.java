@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.*;
 import java.util.ArrayList;
-//import java.util.concurrent.Flow;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -19,7 +18,6 @@ import javax.swing.*;
  */
 public class Game {
     //MEMBER VARIABLES
-    private final int boardWidth = 24;
     private Board board = new Board();
     private ArrayList<Item> players = new ArrayList<>();
     private Stack<Card> deck = new Stack<>();
@@ -55,7 +53,6 @@ public class Game {
 
     //CONSTRUCTOR
     public Game() {
-       // initialiseBoard();
     }
 
     //INTERFACE
@@ -759,6 +756,7 @@ public class Game {
         JLayeredPane layeredPane=new JLayeredPane();
         layeredPane.setPreferredSize(new Dimension(5+65*p.getPlayersHand().size(), 110));
         layeredPane.setBorder(BorderFactory.createTitledBorder("Hand"));
+        layeredPane.setBorder(BorderFactory.createTitledBorder("Hand"));
         int i=0;
         for (Card c : p.getPlayersHand()) {
             System.out.print(c.getName() + " / ");
@@ -787,7 +785,9 @@ public class Game {
     }
 
 
-
+    /**
+     * Method for executing dice roll using two dice
+     */
     public void roll(){
         JButton rollButton = new JButton("Roll Dice");
         rollButton.setBounds(100, 400, 70, 30);//x axis, y axis, width, height
@@ -872,6 +872,10 @@ public class Game {
         });
     }
 
+    /**
+     * Allows player to make an accusation
+     * @param p picks the murderer
+     */
     public void finalAccuse(Item p){
 
         JButton accusation = new JButton("Make Accusation");
@@ -890,6 +894,10 @@ public class Game {
 
     }
 
+    /**
+     * Uses GUI for allowing player to make a final accusation
+     * @param p proposed murderer by player making suggestion
+     */
     public void chooseFinalMurder(Item p){
         JLabel sug = new JLabel(p.getPlayerName() + ", please make a suggestion for the murderer: ");
         JRadioButton w = new JRadioButton("Mrs. White");
@@ -1069,6 +1077,10 @@ public class Game {
         });
     }
 
+    /**
+     * Uses GUI for allowing player to make a final accusation based on weapon
+     * @param p proposed murderer weapon by player making suggestion
+     */
     public void chooseFinalWeapon(Item p){
 
         JLabel sug = new JLabel(p.getPlayerName() + ", please make a suggestion for the murder weapon:");
@@ -1183,6 +1195,10 @@ public class Game {
         });
     }
 
+    /**
+     * Uses GUI for allowing player to make a final accusation
+     * @param p proposed murderer room by player making suggestion
+     */
     public void chooseFinalRoom(Item p){
         JLabel sug = new JLabel(p.getPlayerName()+ ", please make a suggestion for the final murder room:");
 
@@ -1359,6 +1375,11 @@ public class Game {
 
     }
 
+    /**
+     * Final method for player making a suggestion
+     * If so player wins else player loses
+     * @param p the player
+     */
     private void makeFinalSuggestion(Item p) {
         if(finalMurderer.name.equals(murderScene[0].getName()) && finalWeapon.name.equals(murderScene[1].getName()) && finalRoom.getName().equals(murderScene[2].getName())) {
             won = true;
@@ -1391,6 +1412,9 @@ public class Game {
         }
     }
 
+    /**
+     * Method for starting players turn
+     */
     private void playerAct() {
 
         Item p = players.get(playerCount);
@@ -1421,6 +1445,10 @@ public class Game {
         }
     }
 
+    /**
+     * method that rolls the dice using random integer values
+     * @return the sum of both integers
+     */
     private int rollDice() {
         int diceOne = (int) (Math.random() * 5) + 1;
         int diceTwo = (int) (Math.random() * 5) + 1;
@@ -1567,6 +1595,11 @@ public class Game {
         System.out.println("current Y pos: " + p.y);
     }
 
+    /**
+     * Passes to next player
+     * @param p player making suggestion
+     * @param n who they are passing
+     */
     public void checkPlayer(Item p, Integer n){
         if(n >= players.size()){
             n = 0;
@@ -1639,6 +1672,12 @@ public class Game {
         });
     }
 
+    /**
+     * Shows hand to player who is asking for cards
+     * @param p their turn
+     * @param c the card being shown
+     * @param p2 who shows it
+     */
     public void revealHand(Item p, Card c, Item p2){
         JButton pass = new JButton("Continue to " + p.name+"'s turn");
         f.add(pass);
@@ -1684,400 +1723,6 @@ public class Game {
                 });
             }
         });
-    }
-
-    public void chooseSuggestionMurderer(Item p){
-
-        JLabel sug = new JLabel(p.getPlayerName() + ", please make a suggestion for the murderer: ");
-        JRadioButton w = new JRadioButton("Mrs. White");
-        JRadioButton s = new JRadioButton("Mrs. Scarlett");
-        JRadioButton m = new JRadioButton("Colonel Mustard");
-        JRadioButton pl = new JRadioButton("Professor Plum");
-        JRadioButton pe = new JRadioButton("Mrs. Peacock");
-        JRadioButton g = new JRadioButton("Mr. Green");
-
-        f.add(sug);
-        f.add(w);
-        f.add(s);
-        f.add(m);
-        f.add(pl);
-        f.add(pe);
-        f.add(g);
-        f.setLayout(new FlowLayout());
-        f.setSize(600,700);
-        f.setVisible(true);
-
-        //ACTION LISTENERS FOR JRADIO BUTTONS
-
-        w.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                f.getContentPane().removeAll();
-                f.repaint();
-                murder = "Mrs. White";
-                boolean chosen = false;
-
-                for (Item i : players){
-                    if(i.name.equals(murder)){
-                        QueueItem place = placeInRoom(suspectRoom, p);
-                        p.x= place.row;
-                        p.y = place.col;
-                        chosen = true;
-                        suspect = i;
-                        chooseSuggestionWeapon(p);
-                    }
-                }
-
-                if(!chosen){
-                    for (Item i : tempSuspects){
-                        if(i.getPlayerName().equals(murder)){
-                            QueueItem place = placeInRoom(suspectRoom, p);
-                            suspect = i;
-                            p.x= place.row;
-                            p.y = place.col;
-                            chooseSuggestionWeapon(p);
-                        }
-                    }
-                }
-
-
-            }
-        });
-
-        s.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                f.getContentPane().removeAll();
-                f.repaint();
-                murder = "Mrs. Scarlett";
-                boolean chosen = false;
-
-                for (Item i : players){
-                    if(i.name.equals(murder)){
-                        QueueItem place = placeInRoom(suspectRoom, p);
-                        p.x= place.row;
-                        p.y = place.col;
-                        chosen = true;
-                        suspect = i;
-                        chooseSuggestionWeapon(p);
-                    }
-                }
-
-                if(!chosen){
-                    for (Item i : tempSuspects){
-                        if(i.getPlayerName().equals(murder)){
-                            QueueItem place = placeInRoom(suspectRoom, p);
-                            suspect = i;
-                            p.x= place.row;
-                            p.y = place.col;
-                            chooseSuggestionWeapon(p);
-                        }
-                    }
-                }
-
-
-            }
-        });
-
-        m.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                f.getContentPane().removeAll();
-                f.repaint();
-                murder = "Colonel Mustard";
-                boolean chosen = false;
-
-                for (Item i : players){
-                    if(i.name.equals(murder)){
-                        QueueItem place = placeInRoom(suspectRoom, p);
-                        p.x= place.row;
-                        p.y = place.col;
-                        chosen = true;
-                        suspect = i;
-                        chooseSuggestionWeapon(p);
-                    }
-                }
-
-                if(!chosen){
-                    for (Item i : tempSuspects){
-                        if(i.getPlayerName().equals(murder)){
-                            QueueItem place = placeInRoom(suspectRoom, p);
-                            suspect = i;
-                            p.x= place.row;
-                            p.y = place.col;
-                            chooseSuggestionWeapon(p);
-                        }
-                    }
-                }
-
-
-            }
-        });
-
-        pl.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                f.getContentPane().removeAll();
-                f.repaint();
-                murder = "Professor Plum";
-                boolean chosen = false;
-
-                for (Item i : players){
-                    if(i.name.equals(murder)){
-                        QueueItem place = placeInRoom(suspectRoom, p);
-                        p.x= place.row;
-                        p.y = place.col;
-                        chosen = true;
-                        suspect = i;
-                        chooseSuggestionWeapon(p);
-                    }
-                }
-
-                if(!chosen){
-                    for (Item i : tempSuspects){
-                        if(i.getPlayerName().equals(murder)){
-                            QueueItem place = placeInRoom(suspectRoom, p);
-                            suspect = i;
-                            p.x= place.row;
-                            p.y = place.col;
-                            chooseSuggestionWeapon(p);
-                        }
-                    }
-                }
-
-
-            }
-        });
-
-        pe.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                f.getContentPane().removeAll();
-                f.repaint();
-                murder = "Mrs. Peacock";
-                boolean chosen = false;
-
-                for (Item i : players){
-                    if(i.name.equals(murder)){
-                        QueueItem place = placeInRoom(suspectRoom, p);
-                        p.x= place.row;
-                        p.y = place.col;
-                        chosen = true;
-                        suspect = i;
-                        chooseSuggestionWeapon(p);
-                    }
-                }
-
-                if(!chosen){
-                    for (Item i : tempSuspects){
-                        if(i.getPlayerName().equals(murder)){
-                            QueueItem place = placeInRoom(suspectRoom, p);
-                            suspect = i;
-                            p.x= place.row;
-                            p.y = place.col;
-                            chooseSuggestionWeapon(p);
-                        }
-                    }
-                }
-
-
-            }
-        });
-
-        g.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                f.getContentPane().removeAll();
-                f.repaint();
-                murder = "Mr. Green";
-                boolean chosen = false;
-
-                for (Item i : players){
-                    if(i.name.equals(murder)){
-                        QueueItem place = placeInRoom(suspectRoom, p);
-                        p.x= place.row;
-                        p.y = place.col;
-                        chosen = true;
-                        suspect = i;
-                        chooseSuggestionWeapon(p);
-                    }
-                }
-
-                if(!chosen){
-                    for (Item i : tempSuspects){
-                        if(i.getPlayerName().equals(murder)){
-                            QueueItem place = placeInRoom(suspectRoom, p);
-                            suspect = i;
-                            p.x= place.row;
-                            p.y = place.col;
-                            chooseSuggestionWeapon(p);
-                        }
-                    }
-                }
-
-
-            }
-        });
-
-    }
-
-    public void chooseSuggestionWeapon(Item p){
-
-        JLabel sug = new JLabel(p.getPlayerName() + ", please make a suggestion for the murder weapon:");
-        JRadioButton k = new JRadioButton("Knife");
-        JRadioButton l = new JRadioButton("Lead Pipe");
-        JRadioButton r = new JRadioButton("Rope");
-        JRadioButton w = new JRadioButton("Wrench");
-        JRadioButton c = new JRadioButton("Candle Stick");
-        JRadioButton g = new JRadioButton("Revolver");
-
-        f.add(sug);
-        f.add(k);
-        f.add(l);
-        f.add(r);
-        f.add(w);
-        f.add(c);
-        f.add(g);
-
-        //f.setLayout(new FlowLayout());
-        f.setSize(600, 700);
-        f.setVisible(true);
-
-
-
-
-        k.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                f.getContentPane().removeAll();
-                f.repaint();
-                murder = "Knife";
-
-                for (Item i : allWeapons){
-                    if(i.name.equals(murder)){
-                        QueueItem place = placeInRoom(suspectRoom, p);
-                        p.x= place.row;
-                        p.y = place.col;
-                        suspectWeapon = i;
-
-                    }
-                }
-
-                checkPlayer(p, playerCont+1);
-
-            }
-        });
-
-        l.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                f.getContentPane().removeAll();
-                f.repaint();
-                murder = "Lead Pipe";
-
-                for (Item i : allWeapons){
-                    if(i.name.equals(murder)){
-                        QueueItem place = placeInRoom(suspectRoom, p);
-                        p.x= place.row;
-                        p.y = place.col;
-                        suspectWeapon = i;
-
-                    }
-                }
-
-                checkPlayer(p, playerCont+1);
-
-            }
-        });
-
-        r.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                f.getContentPane().removeAll();
-                f.repaint();
-                murder = "Rope";
-
-                for (Item i : allWeapons){
-                    if(i.name.equals(murder)){
-                        QueueItem place = placeInRoom(suspectRoom, p);
-                        p.x= place.row;
-                        p.y = place.col;
-                        suspectWeapon = i;
-
-                    }
-                }
-
-                checkPlayer(p, playerCont+1);
-
-            }
-        });
-
-        w.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                f.getContentPane().removeAll();
-                f.repaint();
-                murder = "Wrench";
-
-                for (Item i : allWeapons){
-                    if(i.name.equals(murder)){
-                        QueueItem place = placeInRoom(suspectRoom, p);
-                        p.x= place.row;
-                        p.y = place.col;
-                        suspectWeapon = i;
-
-                    }
-                }
-
-                checkPlayer(p, playerCont+1);
-
-            }
-        });
-
-        c.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                f.getContentPane().removeAll();
-                f.repaint();
-                murder = "Candlestick";
-
-                for (Item i : allWeapons){
-                    if(i.name.equals(murder)){
-                        QueueItem place = placeInRoom(suspectRoom, p);
-                        p.x= place.row;
-                        p.y = place.col;
-                        suspectWeapon = i;
-
-                    }
-                }
-
-                checkPlayer(p, playerCont+1);
-
-            }
-        });
-
-        g.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                f.getContentPane().removeAll();
-                f.repaint();
-                murder = "Revolver";
-
-                for (Item i : allWeapons){
-                    if(i.name.equals(murder)){
-                        QueueItem place = placeInRoom(suspectRoom, p);
-                        p.x= place.row;
-                        p.y = place.col;
-                        suspectWeapon = i;
-
-                    }
-                }
-
-                checkPlayer(p, playerCont+1);
-
-            }
-        });
-
     }
 
     /**
@@ -2164,6 +1809,12 @@ public class Game {
 
     }
 
+
+    /**
+     * Searches for all doors in each room
+     * @param r The room with the door
+     * @return Set of doors within that room
+     */
     public List<QueueItem> getDoors(RoomCard r){
         
         List<QueueItem> q = new ArrayList<>();
@@ -2336,21 +1987,5 @@ public class Game {
 
 		return new QueueItem(x,y);
 }
-
-    /**
-     * Prints cards from the list
-     *
-     * @param cards - the list
-     */
-    public void printCards(List<Card> cards) {
-        int i = 0;
-        for (Card c : cards) {
-            System.out.println(i + ": " + c.getName() + " (" + c.getType() + ")");
-            i++;
-        }
-    }
-
-
-
 
 }

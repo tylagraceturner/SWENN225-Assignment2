@@ -15,31 +15,6 @@ public class CharacterCard extends Card {
 
     //INTERFACE
 
-    /**
-     * setting the x position of the character card
-     *
-     * @param xPos, the position
-     * @return wasSet, true or false to check if it has been set
-     */
-    public boolean setXPos(int xPos) {
-        boolean wasSet = false;
-        this.xPos = xPos;
-        wasSet = true;
-        return wasSet;
-    }
-
-    /**
-     * setting the y position of the character card
-     *
-     * @param yPos, the position
-     * @return wasSet, true or false to check if it has been set
-     */
-    public boolean setYPos(int yPos) {
-        boolean wasSet = false;
-        this.yPos = yPos;
-        wasSet = true;
-        return wasSet;
-    }
 
     /**
      * @return the x position of the character card
