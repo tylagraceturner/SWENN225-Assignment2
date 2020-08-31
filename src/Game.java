@@ -13,36 +13,38 @@ import javax.swing.*;
 
 /**
  * The main class for running the Cluedo Game. Responsible for the key functions involved in the game.
+ * @author Tyla Turner
+ * @author Sushil Sharma
+ * @author Rahul Mahasuriya
  */
 public class Game {
     //MEMBER VARIABLES
     private final int boardWidth = 24;
     private Board board = new Board();
-    int n = 0;
     private ArrayList<Item> players = new ArrayList<>();
     private Stack<Card> deck = new Stack<>();
     private ArrayList<RoomCard> rooms = new ArrayList<>();
     private ArrayList<Card> tempDeck = new ArrayList<>(); //might not need
-    private ArrayList<Suggestion> accusations = new ArrayList<>();
     private ArrayList<Item> tempSuspects = new ArrayList<>();
+    private ArrayList<Weapon> weapons = new ArrayList<>();
+    private ArrayList<Item> allWeapons = new ArrayList<>();
     private HashMap<Item, RoomCard> prevRoom = new HashMap<Item, RoomCard>();
-    //private HashMap<Card, RoomCard> prevRoom = new HashMap<> ();
-    private int playerCount = 0;
-    List<Suspect> suspectCards;
     HashMap<String, RoomCard> roomMap=new HashMap<String, RoomCard>();
     HashMap<RoomCard,Integer> roomNumMapped=new HashMap<> ();
+    private HashMap<String, String> names = new HashMap<>();
+    private int playerCount = 0;
+    int n = 0;
+    List<Suspect> suspectCards;
     Card murderScene[] = new Card[3];
     RoomCard tempRoom;
     boolean moved = false;
     private Item finalMurderer;
     private Item finalWeapon;
-    private RoomCard finalRoom; //might need to change to roomCard
+    private RoomCard finalRoom;
+    private RoomCard suspectRoom;
+    private Item suspect;
+    private Item suspectWeapon;
 
-    private ArrayList<Weapon> weapons = new ArrayList<>();
-
-    private ArrayList<Item> allWeapons = new ArrayList<>();
-
-    private HashMap<String, String> names = new HashMap<>();
     private String murder = "";
 
     private boolean won = false;
@@ -72,6 +74,7 @@ public class Game {
             public void actionPerformed(ActionEvent e) {
                 JDialog x = new JDialog(f, "New Game");
                 JLabel l = new JLabel("<html>All progress will be lost.<br/>Are you sure you want to start a new game?</html>", SwingConstants.CENTER);
+                x.setLocationRelativeTo(null);
                 JButton t = new JButton("Yes");
                 JButton n = new JButton("No");
 
@@ -82,7 +85,7 @@ public class Game {
                         f.repaint();
                         x.dispose();
                         Game game = new Game();
-                        game.run();
+                        game.start();
 
                     }
                 });
@@ -157,7 +160,9 @@ public class Game {
 
     }
 
-
+    /**
+     * Contains buttons for Start and quit, also a welcome image
+     */
     public void start(){
 
         JButton startButton = new JButton("Start");
@@ -165,7 +170,7 @@ public class Game {
 
         f.add(startButton);
         f.add(quitButton);
-        f.setSize(700,800);
+        f.setSize(500,400);
      //   f.setLocationRelativeTo(null);
         f.setLayout(new FlowLayout());
 
@@ -232,6 +237,7 @@ public class Game {
         });
     }
 
+
     public void setup(){
        // System.out.println("in setup");
         //initialiseCards();
@@ -242,6 +248,9 @@ public class Game {
         getNumPlayers();
     }
 
+    /**
+     * Gets number of players
+     */
     public void getNumPlayers() {
         System.out.println("num players");
 
@@ -314,6 +323,10 @@ public class Game {
 
     }
 
+
+    /**
+     * Sorts players based on numbers of people playing
+     */
     private void sort() {
         tempSuspects = new ArrayList<Item>();
         if (playerCount < 6) {
@@ -341,6 +354,9 @@ public class Game {
     }
 
 
+    /**
+     *
+     */
     //NEXT STEP TO COMPLETE
     private String[] characters = {null,
             "1: Mrs. White",
@@ -557,6 +573,12 @@ public class Game {
 
     }
 
+
+    /**
+     * Adds cards to the different lists
+     * Selects murder conditions
+     * Puts deck together
+     */
     public void getDeck() {
         weapons = new ArrayList<Weapon>();
         suspectCards = new ArrayList<Suspect>();
@@ -629,7 +651,10 @@ public class Game {
 
         //add finals to envelope
         murderScene = new Card[] {murderer, murderWeapon, crimeScene};
-
+        String m = murderScene[0].getName();
+        String ws = murderScene[1].getName();
+        String cs = murderScene[2].getName();
+        System.out.println(m + ws + cs);
         //create the deck
         for(Suspect s : suspectCards) {
             deck.push(s);
@@ -673,7 +698,7 @@ public class Game {
     boolean one=false;
 
     /**
-     * Gets next player and allows them to have their turn
+     * Puts player onto next turn
      */
     public void nextPlayer() {
         System.out.println("In next player");
@@ -724,6 +749,11 @@ public class Game {
         f.setVisible(true);
     }
 
+
+    /**
+     * Displays hand on GUI screen
+     * @param p 
+     */
     public void displayHand(Item p){
 
         JLayeredPane layeredPane=new JLayeredPane();
@@ -762,7 +792,7 @@ public class Game {
         JButton rollButton = new JButton("Roll Dice");
         rollButton.setBounds(100, 400, 70, 30);//x axis, y axis, width, height
         f.add(rollButton);
-        JLabel l = new JLabel("Press the roll button");
+        JLabel l = new JLabel("Press the " + "Roll Dice" + " button");
         f.add(l);
         f.setVisible(true);
 
@@ -794,7 +824,7 @@ public class Game {
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }
-                JLabel b = new JLabel("Position: "+players.get(playerCount).x+", "+players.get(playerCount).x);
+                JLabel b = new JLabel("Position: "+players.get(playerCount).x+", "+players.get(playerCount).y);
                 f.add(b);
 
                 f.addMouseListener( new MouseAdapter() {
@@ -1330,7 +1360,16 @@ public class Game {
     }
 
     private void makeFinalSuggestion(Item p) {
-        if(!finalMurderer.name.equals(murderScene[0].getName()) && !finalWeapon.name.equals(murderScene[1].getName()) && !finalRoom.getName().equals(murderScene[2].getName())) {
+        if(finalMurderer.name.equals(murderScene[0].getName()) && finalWeapon.name.equals(murderScene[1].getName()) && finalRoom.getName().equals(murderScene[2].getName())) {
+            won = true;
+            JLabel winner = new JLabel("Congratulations, " + p.name+ " has won!");
+            JLabel winningCards = new JLabel("The correct murder scene was " + murderScene[0].getName() + " + " + murderScene[1].getName() + " + " + murderScene[2].getName());
+
+            f.add(winner);
+            f.add(winningCards);
+            f.setVisible(true);
+        }
+        else{
             JLabel l = new JLabel("You have lost.");
             JButton con = new JButton("Continue");
             p.lost = true;
@@ -1349,15 +1388,6 @@ public class Game {
 
                 }
             });
-        }
-        else{
-            won = true;
-            JLabel winner = new JLabel("Congratulations, " + p.name+ " has won!");
-            JLabel winningCards = new JLabel("The correct murder scene was " + murderScene[0].getName() + " + " + murderScene[1].getName() + " + " + murderScene[2].getName());
-
-            f.add(winner);
-            f.add(winningCards);
-            f.setVisible(true);
         }
     }
 
@@ -1556,7 +1586,7 @@ public class Game {
                     System.out.println("Pass to the player");
                     f.getContentPane().removeAll();
                     f.repaint();
-                    revealHand(null,null);
+                    revealHand(p,null,null);
                 }
                 else{
                     System.out.println("person");
@@ -1568,7 +1598,7 @@ public class Game {
                     ArrayList<Card> theirCards =new ArrayList<>();
 
                     displayHand(nP);
-                    JLabel choose = new JLabel(p.name+" accused "+finalMurderer.name+" with the "+finalWeapon.name+" in the "+finalRoom.name);
+                    JLabel choose = new JLabel(p.name+" accused "+finalMurderer.name+" with the "+finalWeapon.name+" in the "+finalRoom.getName());
                     f.add(choose);
                     for(Card c : nP.getPlayersHand()){
                         if(c.getName() == finalMurderer.name || c.getName() == finalWeapon.name || c.getName() == finalRoom.getName()){
@@ -1598,7 +1628,7 @@ public class Game {
                                 public void actionPerformed(ActionEvent e) {
                                     f.getContentPane().removeAll();
                                     f.repaint();
-                                    revealHand(p, nP);
+                                    revealHand(p,c, nP);
                                 }
                             });
                         }
@@ -1655,7 +1685,7 @@ public class Game {
             }
         });
     }
-    
+
     public void chooseSuggestionMurderer(Item p){
 
         JLabel sug = new JLabel(p.getPlayerName() + ", please make a suggestion for the murderer: ");
@@ -2134,60 +2164,6 @@ public class Game {
 
     }
 
-    /**
-     * Creates suggestion for player
-     *
-     * @param p     the player
-     * @param input the scanner to take input
-     * @return the created suggestion
-     */
-    private Suggestion getAccusation(Player p, Scanner input) {
-        Card roomC = null;
-        Card weaponC = null;
-        Card characterC = null;
-
-        int i = 0;
-        System.out.println("Pick ONE card of each type to make a Suggestion:");
-        for (Card c : deck) {
-            System.out.println(i + ": " + c.getName() + " (" + c.getType() + ")");
-            i++;
-        }
-
-        //checks if the room card is a instance of the roomCard class
-        System.out.println("Pick a Room Card: ");
-        while (!(roomC instanceof RoomCard)) {
-            try {
-                roomC = deck.get(Integer.parseInt(input.nextLine()));
-            } catch (NumberFormatException nfe) {
-                System.err.println("Invalid");
-                return null;
-            }
-        }
-
-        //checks if the weapon card is a instance of the weaponCard class
-        System.out.println("Pick a Weapon Card: ");
-        while (!(weaponC instanceof RoomCard)) {
-            try {
-                weaponC = deck.get(Integer.parseInt(input.nextLine()));
-            } catch (NumberFormatException nfe) {
-                System.err.println("Invalid");
-                return null;
-            }
-        }
-
-        //checks if the character card is a instance of the characterCard class
-        System.out.println("Pick a Character Card: ");
-        while (!(characterC instanceof RoomCard)) {
-            try {
-                characterC = deck.get(Integer.parseInt(input.nextLine()));
-            } catch (NumberFormatException nfe) {
-                System.err.println("Invalid");
-                return null;
-            }
-        }
-        return new Suggestion(p, true, (WeaponCard) weaponC, (RoomCard) roomC, (CharacterCard) characterC); // Get the accusation
-    }
-
     public List<QueueItem> getDoors(RoomCard r){
         
         List<QueueItem> q = new ArrayList<>();
@@ -2362,276 +2338,6 @@ public class Game {
 }
 
     /**
-     * Refutes suggestion for player
-     *
-     * @param s     the suggestion to be refuted
-     * @param input scanner to parse inputs
-     * @return true if the suggestion has been refuted
-     */
-    public boolean refuteSuggestion(Suggestion s, Scanner input) {
-        for (Item p : players) {
-            if (p.equals(s.getSuggestingPlayer())) {
-                continue;
-            }
-            boolean canRefute = false;
-            ArrayList<Card> refuteList = new ArrayList<>();
-
-            //checking if the card in hand of player contains the card apposed,
-            //if player has card, refuse the accusation, else accuse
-            for (Card c : p.getPlayersHand()) {
-                if (s.contains(c)) {
-                    canRefute = true;
-                    refuteList.add(c);
-                }
-            }
-
-            //displays the refute card.
-            if (refuteList.size() > 0) {
-                System.out.println("It is " + p.getPlayerName() + "'s turn to refute");
-                printCards(refuteList);
-                System.out.println("The card you wish to refute with: ");
-
-                String in = input.nextLine();
-                Card c = refuteList.get(Integer.parseInt(in));
-                if (s.contains(c)) {
-                    return true;
-                }
-            } else {
-                System.out.println(p.getPlayerName() + " cannot refute");
-
-            }
-        }
-        return false;
-    }
-
-   /* public void redraw() {
-        System.out.flush(); //write any data stored in the output buffer. Prevents data loss.
-        board.draw();
-    }*/
-
-/*
-    /**
-     * Generate new board
-
-    public void initialiseBoard() {
-        for (int i = 0; i < board.getBoard().length; i++) {
-            for (int j = 0; j < board.getBoard()[1].length; j++) {
-                board.getBoard()[i][j] = new Tile(i, j);
-            }
-        }
-
-        //initialiseRooms(); might not need these
-        //initialiseCards();
-    }
-    */
-
-    /**
-     * Generates Rooms
-     */
-   /* public void initialiseRooms() {
-
-        rooms.add(new Room("Kitchen", board, "K"));
-        rooms.add(new Room("Ball Room", board, "B"));
-        rooms.add(new Room("Conservatory", board, "C"));
-        rooms.add(new Room("Billiard Room", board, "I"));
-        rooms.add(new Room("Library", board, "L"));
-        rooms.add(new Room("Study", board, "S"));
-        rooms.add(new Room("Hall", board, "H"));
-        rooms.add(new Room("Lounge", board, "O"));
-        rooms.add(new Room("Dining Room", board, "D"));
-
-       // parseLayout();
-
-    }*/
-
-    /**
-     * Adds the appropriate tiles to their respective rooms based on the layout string
-     * The layout string represents the board with each character representing a different room
-     * 'X' represents inaccessible areas of the map, such as walls
-     * '_' represents accessible tiles that are not part of a room
-     * 'E' represents the end of the string
-     */
-   /* public void parseLayout() {
-        String layout =
-                "XXXXXXXXX_XXXX_XXXXXXXXX" +
-                        "XXXXXXX___XXXX___XXXXXXX" +
-                        "XKKKKX__XXXBBXXX__XCCCCX" +
-                        "XKKKKX__XBBBBBBX__XCCCCX" +
-                        "XKKKKX__XBBBBBBX__CCCCCX" +
-                        "XXKKKX__BBBBBBBB___XXXXX" +
-                        "XXXXKX__XBBBBBBX________" +
-                        "________XBXXXXBX_______X" +
-                        "X_________________XXXXXX" +
-                        "XXXXX_____________IIIIIX" +
-                        "XDDDXXXX__XXXXX___XIIIIX" +
-                        "XDDDDDDX__XXXXX___XIIIIX" +
-                        "XDDDDDDD__XXXXX___XXXXIX" +
-                        "XDDDDDDX__XXXXX________X" +
-                        "XDDDDDDX__XXXXX___XXLXXX" +
-                        "XXXXXXDX__XXXXX__XXLLLLX" +
-                        "X_________XXXXX__LLLLLLX" +
-                        "_________________XXLLLLX" +
-                        "X________XXHHXX___XXXXXX" +
-                        "XXXXXOX__XHHHHX_________" +
-                        "XOOOOOX__XHHHHH________X" +
-                        "XOOOOOX__XHHHHX__XSXXXXX" +
-                        "XOOOOOX__XHHHHX__XSSSSSX" +
-                        "XOOOOOX__XHHHHX__XSSSSSX" +
-                        "XXXXXXX_XXXXXXXX_XXXXXXXE";
-
-        for (int i = 0; layout.charAt(i) != 'E'; i++) {
-            if (layout.charAt(i) == 'X') {
-                board.getBoard()[i / boardWidth][i % boardWidth].setAccessible();
-                board.getBoard()[i / boardWidth][i % boardWidth].setPrint("+");
-            } else {
-                for (Room r : rooms) {
-                    if (layout.charAt(i) == r.getPrint().charAt(0)) {
-                        r.addTile(board.getBoard()[i / boardWidth][i % boardWidth]);
-                    }
-                }
-            }
-        }
-
-        for (Room r : rooms) {
-            r.setPrint();
-        }
-    } */
-
-    /**
-     * Generates and adds cards to the deck
-     */
-    private void initialiseCards() {
-
-        //Character cards
-        deck.add(new CharacterCard("Col Mustard", 17, 0));
-        deck.add(new CharacterCard("Mrs White", 0, 9));
-        deck.add(new CharacterCard("Prof Plum", 19, 23));
-        deck.add(new CharacterCard("Miss Scarlett", 24, 7));
-        deck.add(new CharacterCard("Mr Green", 0, 14));
-        deck.add(new CharacterCard("Mrs Peacock", 6, 23));
-
-        //Weapon Cards
-        deck.add(new WeaponCard("Rope"));
-        deck.add(new WeaponCard("Dagger"));
-        deck.add(new WeaponCard("Lead Pipe"));
-        deck.add(new WeaponCard("Spanner"));
-        deck.add(new WeaponCard("Revolver"));
-        deck.add(new WeaponCard("Candlestick"));
-
-        //Room Cards
-        deck.add(new RoomCard("Hall"));
-        deck.add(new RoomCard("Billiard Room"));
-        deck.add(new RoomCard("Conservatory"));
-        deck.add(new RoomCard("Library"));
-        deck.add(new RoomCard("Ball Room"));
-        deck.add(new RoomCard("Study"));
-        deck.add(new RoomCard("Dining Room"));
-        deck.add(new RoomCard("Lounge"));
-        deck.add(new RoomCard("Kitchen"));
-
-        Collections.shuffle(deck); //added this
-
-    }
-
-    /**
-     * Generates the murder scene
-     *
-     * @return a suggestion containing the murder weapon, the locations of the murder and the identity of the murderer
-     */
-    private Suggestion createMurderer() {
-        WeaponCard mWeapon;
-        RoomCard mRoom;
-        CharacterCard the_murderer;
-
-        int i = (int) (Math.random() * tempDeck.size());
-        while (!(tempDeck.get(i) instanceof WeaponCard)) {
-            i = (int) (Math.random() * tempDeck.size());
-
-        }
-
-        mWeapon = (WeaponCard) tempDeck.get(i);
-        tempDeck.remove(mWeapon);
-
-        i = (int) (Math.random() * tempDeck.size());
-        while (!(tempDeck.get(i) instanceof RoomCard)) {
-            i = (int) (Math.random() * tempDeck.size());
-
-        }
-
-        mRoom = (RoomCard) tempDeck.get(i);
-        tempDeck.remove(mRoom);
-
-        i = (int) (Math.random() * tempDeck.size());
-        while (!(tempDeck.get(i) instanceof CharacterCard)) {
-            i = (int) (Math.random() * tempDeck.size());
-        }
-
-        the_murderer = (CharacterCard) tempDeck.get(i);
-        tempDeck.remove(the_murderer);
-
-        return new Suggestion(mWeapon, mRoom, the_murderer);
-    }
-
-
-    /**
-     * Allows player to create suggestion
-     *
-     * @param p     the player making the suggestion
-     * @param input the scanner to take input
-     * @return the created suggestion
-     */
-
-    private Suggestion suggest(Player p, Scanner input) {
-        Card roomC = null;
-        Card weaponC = null;
-        Card characterC = null;
-
-        int i = 0;
-        System.out.println("Pick 1 card of each type to make a suggestion");
-        for (Card c : deck) {
-            System.out.println(i + ": " + c.getName() + " (" + c.getType() + ")");
-            i++;
-
-            if (c instanceof RoomCard && c.getName().equals(p.getPlayerPosition().getRoom().getRoomCard())) {
-                roomC = c;
-            }
-        }
-
-        System.out.println("The room is: " + p.getPlayerPosition().getRoom().getRoomCard());
-
-        System.out.println("Pick 1 weapon card: ");
-        while (!(weaponC instanceof WeaponCard)) {
-            try {
-                weaponC = deck.get(Integer.parseInt(input.nextLine()));
-            } catch (NumberFormatException nfe) {
-                System.err.println("Invalid Format!");
-                return null;
-            }
-        }
-
-        System.out.println("Pick 1 character card: ");
-        while (!(characterC instanceof CharacterCard)) {
-            try {
-                characterC = deck.get(Integer.parseInt(input.nextLine()));
-            } catch (NumberFormatException nfe) {
-                System.err.println("Invalid Format!");
-                return null;
-            }
-        }
-        return new Suggestion(p, false, (WeaponCard) weaponC, (RoomCard) roomC, (CharacterCard) characterC);
-    }
-
-    /**
-     * represents rolling two 6-sided dice
-     *
-     * @return the sum of the two dice rolls
-     */
-    /* private int rollDice() {
-        return (int) ((Math.random() * 5 + 1) + (Math.random() * 5 + 1));
-    } */
-
-
-    /**
      * Prints cards from the list
      *
      * @param cards - the list
@@ -2643,200 +2349,6 @@ public class Game {
             i++;
         }
     }
-
-
-    /**
-     * @param p     - The player
-     * @param input - The scanner
-     * @return true if the game is over
-     */
-    /* private boolean doTurn(Player p, Scanner input) {
-
-        System.out.println("It is " + p.getPlayerName() + "'s (Player " + (p.getPrint()) + ") turn");
-        boolean moving = true;
-        Room startRoom = p.getPlayerPosition().getRoom();
-        boolean suggest = false;
-
-        if (p.getJustMoved()) {//if player has moved
-            p.setJustMoved(false);
-            System.out.println("You can choose to move or make a suggestion.");
-            System.out.println("Do you want to move? (Y/N)");
-
-            String response = input.nextLine().toUpperCase();
-            if (response.equals("N")) {
-                moving = false;
-                suggest = true;
-            }
-        }
-
-        if (moving) {//if character is moving
-           // redraw();
-
-            int numberOfMoves = rollDice();
-            System.out.println("You rolled: " + numberOfMoves);
-
-            while (numberOfMoves != 0) {//while player still has turns left
-                System.out.println("Enter direction to move: (WASD)");
-                System.out.println("or press 'H' to view your hand");
-                System.out.println("or press 'G' to make a guess (suggestion) at the murder circumstances");
-
-                String direction = input.nextLine();
-
-                if (direction.toUpperCase().equals("H")) {//if player wants to see whats in hand
-                    p.printHand();
-
-                } else if (direction.toUpperCase().equals("G")) {//if the player wants to make a suggestion
-                    Room currentRoom = p.getPlayerPosition().getRoom();
-                    if (currentRoom != null && !currentRoom.equals(startRoom)) {
-                        suggest = true;
-                        numberOfMoves = 0;
-
-                    } else {
-                        System.out.println("Cannot make a suggestion from this room.");
-                    }
-                } else if (p.parser(direction)) {//after each move player makes on board
-                    numberOfMoves--;
-                    System.out.println("You have " + numberOfMoves + " moves left");
-                }
-                //redraw();
-
-            }
-        }
-
-        if (!suggest && p.getPlayerPosition().getRoom() != null && !p.getPlayerPosition().getRoom().equals(startRoom)) {
-            //if player is in a room to make a suggestion
-            System.out.println("Do you want to make a Suggestion? (Y/N)");
-            String response = input.nextLine().toUpperCase();
-            if (response.equals("Y")) {
-                suggest = true;
-            }
-        }
-
-        if (suggest) {//if player wants to suggest
-            System.out.println("Your Hand: ");
-            p.printHand();
-            System.out.println(" ");
-            Suggestion s = suggest(p, input);
-
-            if (s == null) {
-                return false;
-            }
-
-            boolean refute = refuteSuggestion(s, input);
-
-          /*  for (Item p1 : players) {
-                if (s != null && p1.getPlayerName().equals(s.getCharacter().getName())) {
-                    for (Room r : rooms) {
-                        if (r.getRoomCard().equals(s.getRoom().getName())) {
-                            Tile movingTo = r.getTile().stream().filter(tile -> tile.getContains() == null).findFirst().get();
-                            p1.movePlayer(movingTo);
-                            p1.setJustMoved(true);
-                        }
-                    }
-                }
-            } */
-
-            //if the player makes an accusation
-           /* if (!refute) {
-                assert s != null;
-                s.setIsAccusation(true);
-                accusations.add(s);
-            }
-        }
-
-        //if the accusation is made
-        if (!accusations.isEmpty()) {
-            System.out.println("Do you want to make an accusation? (Y/N");
-            String response = input.nextLine().toUpperCase();
-            if (response.equals("Y")) {
-                Suggestion accuse = getAccusation(p, input);
-                if (accuse.equals(murder)) {//if the murder is found
-                    System.out.println("Congratulations!");
-                    return true;
-                } else {//if wrongly accused
-                    System.out.println("Sorry! You've Lost.");
-                    p.lose();
-                }
-            }
-        }
-        return false;
-    } */
-
-    /**
-     * Main game
-     */
-    private void run() {
-        //getting the user input and boundary testing it
-      /*  Scanner input = new Scanner(System.in);
-        do {
-            System.out.println("Please enter the number of players between 3 and 6: ");
-            try {
-                numberOfPlayers = Integer.parseInt(input.nextLine());
-            } catch (NumberFormatException nfe) {
-                System.err.println("Invalid. Please enter a number between 3 and 6.");
-            }
-            System.out.println("You entered: " + numberOfPlayers);
-
-
-       // }
-      //  while (numberOfPlayers > 6 || numberOfPlayers < 3);
-
-        //adding the players
-        players.add(new Player(board, new CharacterCard("Mr Green", 0, 14)));
-        players.add(new Player(board, new CharacterCard("Mrs White", 0, 9)));
-        players.add(new Player(board, new CharacterCard("Mrs Peacock", 6, 23)));
-        if (numberOfPlayers > 3) {
-            players.add(new Player(board, new CharacterCard("Col Mustard", 17, 0)));
-        }
-        if (numberOfPlayers > 4) {
-            players.add(new Player(board, new CharacterCard("Prof Plum", 19, 23)));
-        }
-        if (numberOfPlayers > 5) {
-            players.add(new Player(board, new CharacterCard("Miss Scarlett", 24, 7)));
-        }
-
-        for (Player p : players) {
-            p.setPrint(String.valueOf(players.indexOf(p) + 1));
-        }
-
-        tempDeck.addAll(deck);
-        murder = createMurderer();
-        dealCards(numberOfPlayers);
-
-        //checking if the player has won or not
-        int count = 0;
-        boolean won = false;
-        while (!won) {
-            for (Player p : players) {
-                won = doTurn(p, input);
-                if (won) {
-                    System.out.println("Congratulations " + p.getPlayerName() + ". You Won.");
-                    System.out.println("The Murder Circumstances:\n It was " + murder.getCharacter().getName() + " in the " + murder.getRoom().getName() + " with the " + murder.getWeapon().getName() + ".");
-                }
-            }
-
-            if (count == 20) {
-                break;
-            }
-            count++;
-        }
-
-        System.out.println("Please enter the number of players between 3 and 6: ");
-
-        numberOfPlayers = Integer.parseInt(input.nextLine());
-*/
-
-    }
-
-
-
-
-
-
-
-
-
-
 
 
 
